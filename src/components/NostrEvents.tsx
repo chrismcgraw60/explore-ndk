@@ -30,7 +30,7 @@ export default function NostrEvents() {
     })
 
     return <>
-        <div>
+        <div className="min-h-full">
             {eventDivs}
         </div>
     </>

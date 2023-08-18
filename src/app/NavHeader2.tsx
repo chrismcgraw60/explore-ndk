@@ -1,20 +1,20 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const user = {
-  name: 'Tom Cook',
-  email: 'tom@example.com',
+  name: 'chrismcgraw60',
+  email: 'chrismcgraw60@gmail.com',
   imageUrl:
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    'https://avatars.githubusercontent.com/u/4159345?v=4',
 }
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Team', href: '#', current: false },
-  { name: 'Projects', href: '#', current: false },
-  { name: 'Calendar', href: '#', current: false },
-  { name: 'Reports', href: '#', current: false },
+  { name: 'Feed', href: '/feed', current: true },
+  { name: 'Relays', href: '/relays', current: false },
+  { name: 'Nips', href: '/nips', current: false },
+  { name: 'Flow', href: '/flow', current: false },
 ]
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
@@ -29,15 +29,6 @@ function classNames(...classes: string[]) {
 export default function NavHeader2() {
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-100">
-        <body class="h-full">
-        ```
-      */}
-      {/* <div className="min-h-full"> */}
         <Disclosure as="nav" className="bg-gray-800">
           {({ open }) => (
             <>
@@ -47,8 +38,8 @@ export default function NavHeader2() {
                     <div className="flex-shrink-0">
                       <img
                         className="h-8 w-8"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                        alt="Your Company"
+                        src="nostr_logo_blk_prpl.png"
+                        alt="Explore-Nostr"
                       />
                     </div>
                     <div className="hidden md:block">
@@ -188,13 +179,6 @@ export default function NavHeader2() {
             </>
           )}
         </Disclosure>
-
-                
-        {/* <main> */}
-          {/* <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">Your content</div> */}
-        {/* </main> */}
-
-      {/* </div> */}
     </>
   )
 }
