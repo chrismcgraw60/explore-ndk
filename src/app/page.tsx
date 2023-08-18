@@ -1,6 +1,7 @@
 'use client'
 
 import FlowNDKProvider from "@/components/FlowNDKProvider";
+import NostrEvents from "@/components/NostrEvents";
 import NostrProfile from "@/components/NostrProfile";
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
 
       <FlowNDKProvider>
         <NostrProfile></NostrProfile>
+        <NostrEvents></NostrEvents>
       </FlowNDKProvider>
 
     </main>

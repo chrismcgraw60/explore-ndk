@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
+import { NDKUserProfile } from "@nostr-dev-kit/ndk"
 
+/**
+ * Provides login features and profile information.
+ */
 export default function NostrProfile() {
     
     const [result, setResult] = useState<string>("");
@@ -23,6 +27,10 @@ export default function NostrProfile() {
         setLoading(false);
     }
 
+    function renderProfile(profile: NDKUserProfile | null) {
+        return profile ? JSON.stringify(profile, null, 2) : "No Profile";
+    }
+
     return (
         <>
             {!result && (
@@ -38,7 +46,7 @@ export default function NostrProfile() {
             )}
 
             <pre>
-            <code>{profile ? JSON.stringify(profile, null, 2) : "No Profile"}</code>
+            <code>{renderProfile(profile)}</code>
             </pre>
             
 

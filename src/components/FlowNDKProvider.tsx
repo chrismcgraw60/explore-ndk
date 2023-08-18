@@ -9,6 +9,9 @@ const relayUrls = [
     "wss://purplepag.es",
 ];
 
+/**
+ * Wraps a pre-configured NDKProvider.
+ */
 export default function FlowNDKProvider({children} : PropsWithChildren) {
   return (
       <NDKProvider relayUrls={relayUrls}>
