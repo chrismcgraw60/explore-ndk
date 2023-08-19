@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import UserProfile from '../features/user-profile/UserProfile'
-import Notify from './Notify'
+import Notify from '../features/notify/Notify'
 import Logo from './Logo'
 
 const user = {
