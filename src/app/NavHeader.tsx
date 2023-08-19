@@ -29,7 +29,7 @@ function classNames(...classes: string[]) {
 export default function NavHeader() {
   return (
     <>
-        <Disclosure as="nav" className="bg-gray-800">
+        <Disclosure as="nav" className="bg-gray-800 fixed w-full">
           {({ open }) => (
             <>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
