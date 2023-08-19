@@ -6,7 +6,7 @@ import NostrProfile from "@/components/NostrProfile";
 export default function Home() {
   return (
     <FlowNDKProvider>
-        <NostrProfile></NostrProfile>
-      </FlowNDKProvider>
+      <NostrProfile></NostrProfile>
+    </FlowNDKProvider>
   )
 }
