@@ -1,4 +1,4 @@
-import NavHeader2 from '@/app/NavHeader2'
+import NavHeader from '@/app/NavHeader'
 import '@/styles/globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full bg-gray-100">
       <body className={inter.className}>
-        <NavHeader2/>
+        <NavHeader/>
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
             <div className="min-h-full"> 

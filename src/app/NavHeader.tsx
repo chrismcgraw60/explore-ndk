@@ -26,7 +26,7 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function NavHeader2() {
+export default function NavHeader() {
   return (
     <>
         <Disclosure as="nav" className="bg-gray-800">
