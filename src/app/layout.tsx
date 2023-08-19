@@ -1,8 +1,10 @@
+import NavHeader from '@/app/NavHeader'
 import '@/styles/globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
+const bodyClass = `${inter} h-full`
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -15,8 +17,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className="h-full bg-gray-100">
+      <body className={inter.className}>
+        <NavHeader/>
+        <main>
+          <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+            <div className="min-h-full mt-16"> 
+              {children}
+            </div>
+          </div>
+        </main>
+        
+      </body>
     </html>
   )
 }

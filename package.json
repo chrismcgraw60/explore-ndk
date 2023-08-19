@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
     "@nostr-dev-kit/ndk": "^0.8.11",
     "@nostr-dev-kit/ndk-react": "^0.1.1",
     "@types/lodash": "^4.14.197",

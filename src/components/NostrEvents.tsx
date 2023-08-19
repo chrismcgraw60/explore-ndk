@@ -1,4 +1,4 @@
-import { useState, useEffect, JSX, JSXElementConstructor, PromiseLikeOfReactNode, ReactElement, ReactNode } from 'react';
+import { useState, useEffect, JSX } from 'react';
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { NDKFilter, NDKEvent } from "@nostr-dev-kit/ndk";
 import _ from "lodash";
@@ -30,7 +30,7 @@ export default function NostrEvents() {
     })
 
     return <>
-        <div>
+        <div className="min-h-full">
             {eventDivs}
         </div>
     </>
