@@ -31,10 +31,10 @@ function classNames(...classes: string[]) {
 export default function NavHeader() {
   return (
     <>
-        <Disclosure as="nav" className="bg-gray-800 fixed w-full">
+        <Disclosure as="nav" className="flex bg-gray-800 w-full">
           {({ open }) => (
             <>
-              <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+              <div className="w-full px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                   <div className="flex items-center">
 
