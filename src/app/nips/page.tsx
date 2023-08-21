@@ -1,4 +1,9 @@
+'use client'
+import FlowNDKProvider from "@/components/FlowNDKProvider";
+import NostrEvents from "@/components/NostrEvents";
 
 export default function NipsHome() {
-    return <h1>NIPs</h1>
+    return <>
+        NIPS
+    </>
 }

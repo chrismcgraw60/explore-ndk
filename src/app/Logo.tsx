@@ -1,3 +1,4 @@
+'use client'
 /* eslint-disable @next/next/no-img-element */
 
 export default function Logo() {
@@ -7,7 +8,7 @@ export default function Logo() {
           <a href="/" rel="noreferrer">
             <img
               className="h-8 w-8"
-              src="nostr_logo_blk_prpl.png"
+              src="/nostr_logo_blk_prpl.png"
               alt="Explore-Nostr"
             />
           </a>

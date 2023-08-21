@@ -4,8 +4,8 @@ import NostrEvents from "@/components/NostrEvents";
 
 export default function Feeds() {
     return (
-      <FlowNDKProvider>
-          <NostrEvents></NostrEvents>
+        <FlowNDKProvider>
+            <NostrEvents></NostrEvents>
         </FlowNDKProvider>
     )
   }
