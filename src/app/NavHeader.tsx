@@ -12,12 +12,14 @@ const user = {
   imageUrl:
     'https://avatars.githubusercontent.com/u/4159345?v=4',
 }
+
 const navigation = [
   { name: 'Feed', href: '/feed', current: true },
   { name: 'Relays', href: '/relays', current: false },
   { name: 'Nips', href: '/nips', current: false },
   { name: 'Flow', href: '/flow', current: false },
 ]
+
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
