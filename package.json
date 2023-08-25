@@ -12,7 +12,7 @@
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
     "@nostr-dev-kit/ndk": "file:../ndk",
-    "@nostr-dev-kit/ndk-react": "^0.1.1",
+    "@nostr-dev-kit/ndk-react": "file:./../ndk-react/packages/ndk-react",
     "@types/lodash": "^4.14.197",
     "@types/node": "20.4.10",
     "@types/react": "18.2.20",
