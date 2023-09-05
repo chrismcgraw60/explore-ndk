@@ -1,6 +1,6 @@
 import { useState, useEffect, JSX } from 'react';
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import { NDKFilter, NDKEvent } from "@nostr-dev-kit/ndk";
+import { NDKFilter, NDKEvent } from "@nostr-dev-kit/ndk/ndk";
 import _ from "lodash";
 
 export default function NostrEvents() {

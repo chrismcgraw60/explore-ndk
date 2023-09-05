@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import { NDKUserProfile } from "@nostr-dev-kit/ndk"
+import { NDKUserProfile } from "@nostr-dev-kit/ndk/ndk"
 
 /**
  * Provides login features and profile information.
