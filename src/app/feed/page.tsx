@@ -3,6 +3,8 @@ import NostrEvents from "@/components/NostrEvents";
 
 export default function Feeds() {
     return (
-        <NostrEvents></NostrEvents>
+        <div className="overflow-y-auto">
+            <NostrEvents></NostrEvents>
+        </div>
     )
   }
