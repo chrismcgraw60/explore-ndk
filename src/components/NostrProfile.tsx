@@ -3,53 +3,66 @@
 import { useState } from "react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { NDKUserProfile } from "@nostr-dev-kit/ndk/ndk"
+import { useUserProfileStore, UserProfileState, Nip07Response } from '@/features/user-profile/UserProfileStore'
+
+
 
 /**
  * Provides login features and profile information.
  */
 export default function NostrProfile() {
     
-    const [result, setResult] = useState<string>("");
-    const [user, setUser] = useState<string>("");
+    const userProfiles = useUserProfileStore((state) => state);
     const [loading, setLoading] = useState<boolean>(false);
 
     const { loginWithNip07, getProfile } = useNDK();
 
-    const profile = user ? getProfile(user) : null;
+    const getProfileTest = (npub : string) => {
+        getProfile(npub);
+        return getProfile(npub);
+    }
+    
+    if (!userProfiles.ndkProfile) {
+        const profile = userProfiles.npubWithSigner ? getProfileTest(userProfiles.npubWithSigner.npub) : null;
+        if (profile) {
+            userProfiles.setNdkProfile(profile);
+        }
+    }
 
     async function connectExtension() {
         setLoading(true);
-        const user = await loginWithNip07();
-        if (user) {
-          setResult(JSON.stringify(user, null, 2));
-          setUser(user.npub);
-        }
+
+        const user : Nip07Response = await loginWithNip07();
+        userProfiles.setNpubWithSigner(user);
+
         setLoading(false);
     }
 
-    function renderProfile(profile: NDKUserProfile | null) {
-        return profile ? JSON.stringify(profile, null, 2) : "No Profile";
+    function renderProfile(userProfiles: UserProfileState) {
+        const nip07Str = userProfiles.npubWithSigner ? JSON.stringify(userProfiles.npubWithSigner, null, 2) : "No Npub";
+        const profileStr = userProfiles.ndkProfile ? JSON.stringify(userProfiles.ndkProfile, null, 2) : "No Profile";
+        return "P:" + profileStr + "NPI07:" + nip07Str;
     }
 
     return (
         <>
-            {!result && (
+            {!userProfiles.npubWithSigner && (
                 <button onClick={() => connectExtension()}>
                     {loading ? "..." : "Connect with Extension"}
                 </button>
             )}
 
-            {result && (
-                <pre>
-                <code>{user}</code>
-                </pre>
-            )}
-
             <pre>
-            <code>{renderProfile(profile)}</code>
+                <code>{renderProfile(userProfiles)}</code>
             </pre>
-            
-
+{/* 
+            <code>
+            {
+                getProfile(
+                "npub1alpha9l6f7kk08jxfdaxrpqqnd7vwcz6e6cvtattgexjhxr2vrcqk86dsn"
+                ).displayName
+            }
+            </code> */}
         </>
     )
 }
