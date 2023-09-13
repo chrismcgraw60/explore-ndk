@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import { NDKUserProfile } from "@nostr-dev-kit/ndk/ndk"
-import { useUserProfileStore, UserProfileState, Nip07Response } from '@/features/user-profile/UserProfileStore'
+import { useUserProfileStore, Nip07Response } from '@/features/user-profile/UserProfileStore'
 
 
 
@@ -12,24 +11,22 @@ import { useUserProfileStore, UserProfileState, Nip07Response } from '@/features
  */
 export default function NostrProfile() {
 
-    const [nip07, setNip07] = useState<Nip07Response>(undefined);
+    const { loginWithNip07, getProfile, getUser } = useNDK();
     const userProfiles = useUserProfileStore((state) => state);
     const [loading, setLoading] = useState<boolean>(false);
-
-    const { loginWithNip07, getProfile, getUser } = useNDK();
 
     async function connectExtension() {
         setLoading(true);
 
         const user : Nip07Response = await loginWithNip07();
-        setNip07(user);
+        userProfiles.setNpubWithSigner(user);
 
         setLoading(false);
     }
 
     return (
         <>
-            {!nip07 && (
+            {!userProfiles.npubWithSigner && (
                 <button onClick={() => connectExtension()}>
                     {loading ? "..." : "Connect with Extension"}
                 </button>
@@ -37,10 +34,10 @@ export default function NostrProfile() {
 
             <div>
                 <pre>
-                    {nip07 && (
+                    {userProfiles.npubWithSigner && (
                         <div className="overflow-auto">
                             NPUB:
-                            <code>{ JSON.stringify(nip07, null, 2) }</code>
+                            <code>{ JSON.stringify(userProfiles.npubWithSigner, null, 2) }</code>
                         </div>
                     )}
                 </pre>
@@ -48,10 +45,10 @@ export default function NostrProfile() {
 
             <div className="overflow-auto">
                 <code>
-                    {nip07 && (
+                    {userProfiles.npubWithSigner && (
                         <div className="overflow-auto">
                             USER:
-                            <code>{ JSON.stringify(getUser(nip07.npub), null, 2) }</code>
+                            <code>{ JSON.stringify(getUser(userProfiles.npubWithSigner.npub), null, 2) }</code>
                         </div>
                     )}
                 </code>
@@ -59,10 +56,10 @@ export default function NostrProfile() {
 
             <div className="overflow-auto">
                 <code>
-                    {nip07 && (
+                    {userProfiles.npubWithSigner && (
                         <div className="overflow-auto">
                             PROFILE:
-                            <code>{ JSON.stringify(getProfile(nip07.npub), null, 2) }</code>
+                            <code>{ JSON.stringify(getProfile(userProfiles.npubWithSigner.npub), null, 2) }</code>
                         </div>
                     )}
                 </code>
