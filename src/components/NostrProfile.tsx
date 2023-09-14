@@ -1,19 +1,36 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
+import NDK from '@nostr-dev-kit/ndk/ndk';
 import { useUserProfileStore, Nip07Response } from '@/features/user-profile/UserProfileStore'
-
-
 
 /**
  * Provides login features and profile information.
  */
 export default function NostrProfile() {
 
-    const { loginWithNip07, getProfile, getUser } = useNDK();
+    const { loginWithNip07, ndk } = useNDK();
     const userProfiles = useUserProfileStore((state) => state);
     const [loading, setLoading] = useState<boolean>(false);
+
+    const fetchAndSetUser = useCallback(async (nip07: Nip07Response) => {
+
+        if (userProfiles.ndkUser) return;
+
+        const user = (ndk as NDK).getUser({npub: nip07?.npub});
+        await user.fetchProfile();
+        userProfiles.setNdkUser(user);
+
+    }, [ndk, userProfiles]);
+
+    useEffect(() => {
+        if (userProfiles.npubWithSigner ) {
+            fetchAndSetUser(userProfiles.npubWithSigner)
+        }
+    }, [fetchAndSetUser, userProfiles.npubWithSigner])
+
+
 
     async function connectExtension() {
         setLoading(true);
@@ -25,45 +42,23 @@ export default function NostrProfile() {
     }
 
     return (
-        <>
+        <div>
+
             {!userProfiles.npubWithSigner && (
                 <button onClick={() => connectExtension()}>
                     {loading ? "..." : "Connect with Extension"}
                 </button>
             )}
 
-            <div>
-                <pre>
-                    {userProfiles.npubWithSigner && (
-                        <div className="overflow-auto">
-                            NPUB:
-                            <code>{ JSON.stringify(userProfiles.npubWithSigner, null, 2) }</code>
-                        </div>
-                    )}
-                </pre>
-            </div>
-
             <div className="overflow-auto">
                 <code>
-                    {userProfiles.npubWithSigner && (
+                    {userProfiles.ndkUser && (
                         <div className="overflow-auto">
-                            USER:
-                            <code>{ JSON.stringify(getUser(userProfiles.npubWithSigner.npub), null, 2) }</code>
+                            USER: <code>{ JSON.stringify(userProfiles.ndkUser, null, 2) }</code>
                         </div>
                     )}
                 </code>
             </div>
-
-            <div className="overflow-auto">
-                <code>
-                    {userProfiles.npubWithSigner && (
-                        <div className="overflow-auto">
-                            PROFILE:
-                            <code>{ JSON.stringify(getProfile(userProfiles.npubWithSigner.npub), null, 2) }</code>
-                        </div>
-                    )}
-                </code>
-            </div>
-        </>
+        </div>
     )
 }

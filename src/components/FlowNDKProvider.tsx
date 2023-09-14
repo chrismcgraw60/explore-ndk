@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { NDKProvider } from "@nostr-dev-kit/ndk-react";
 import { PropsWithChildren } from "react";
