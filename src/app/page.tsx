@@ -1,6 +1,6 @@
 'use client'
 
-import NostrProfile from "@/components/NostrProfile";
+import NostrProfile from "@/features/user-profile/NostrProfile";
 
 export default function Home() {
   return (
