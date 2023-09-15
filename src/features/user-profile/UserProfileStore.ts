@@ -1,4 +1,4 @@
-
+'use client'
 import { create } from 'zustand'
 import { NDKUserProfile, NDKNip07Signer, NDKUser } from "@nostr-dev-kit/ndk/ndk"
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -32,7 +32,7 @@ export const useUserProfileStore = create<UserProfileState>()(
         }),
         {
             name: 'user-storage', // unique name
-            storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+            storage: createJSONStorage(() => localStorage),
         }
     )
 );
