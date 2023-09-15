@@ -58,7 +58,7 @@ export default function NostrProfileNav() {
             {userProfiles.npub &&
               <>
               <Menu.Item key="show_profile">
-                { ({ active }) => (<a href="/" className={menuItemClass(active)}>Your Profile</a>) }
+                { ({ active }) => (<a href="/profile" className={menuItemClass(active)}>Your Profile</a>) }
               </Menu.Item>
 
               <Menu.Item key="sign_out">

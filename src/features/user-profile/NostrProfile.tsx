@@ -13,7 +13,7 @@ export default function NostrProfile() {
     const [ready, setReady] = useState<boolean>(false);
 
     useEffect(() => {
-        if (npub && !ndkUser ) {
+        if (ndk && npub && !ndkUser ) {
 
             const fetchAndSetUser = async (npub: NPub07) => {
                 const user = (ndk as NDK).getUser({npub: npub?.npub});
