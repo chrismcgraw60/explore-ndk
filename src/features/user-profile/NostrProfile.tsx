@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import NDK, { NDKUser, Npub } from '@nostr-dev-kit/ndk/ndk';
+import NDK from '@nostr-dev-kit/ndk/ndk';
 import { useUserProfileStore, NPub07 } from '@/features/user-profile/UserProfileStore'
 
 /**

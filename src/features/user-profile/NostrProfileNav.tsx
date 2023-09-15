@@ -2,9 +2,8 @@
 "use client";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
-
+import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { useUserProfileStore } from "@/features/user-profile/UserProfileStore";
-import { createSemanticDiagnosticsBuilderProgram } from "typescript";
 
 const user = {
   name: "chrismcgraw60",
@@ -18,7 +17,15 @@ function classNames(...classes: string[]) {
 
 export default function NostrProfileNav() {
 
+  const { loginWithNip07 } = useNDK();
   const userProfiles = useUserProfileStore((state) => state);
+
+  async function connectExtension() {
+    const user = await loginWithNip07();
+    if (user) {
+      userProfiles.setNpub07(user); 
+    }
+  }
 
   return (
     <>
@@ -42,14 +49,23 @@ export default function NostrProfileNav() {
         >
           <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
 
-            <Menu.Item key="show_profile">
-              { ({ active }) => (<a href="/" className={menuItemClass(active)}>Your Profile</a>) }
-            </Menu.Item>
+            {!userProfiles.npub &&
+              <Menu.Item key="sign_in">
+                { ({ active }) => (<a href="#" onClick={() => connectExtension()} className={menuItemClass(active)}>Sign in</a>) }
+              </Menu.Item>
+            }
 
-            <Menu.Item key="sign_out">
-              { ({ active }) => (<a href="#" onClick={() => userProfiles.clear()} className={menuItemClass(active)}>Sign out</a>) }
-            </Menu.Item>
+            {userProfiles.npub &&
+              <>
+              <Menu.Item key="show_profile">
+                { ({ active }) => (<a href="/" className={menuItemClass(active)}>Your Profile</a>) }
+              </Menu.Item>
 
+              <Menu.Item key="sign_out">
+                { ({ active }) => (<a href="#" onClick={() => userProfiles.clear()} className={menuItemClass(active)}>Sign out</a>) }
+              </Menu.Item>
+              </>
+            }
           </Menu.Items>
         </Transition>
       </Menu>
