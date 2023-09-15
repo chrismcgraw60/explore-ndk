@@ -2,7 +2,7 @@
 'use client'
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import UserProfile from '@/features/user-profile/UserProfile'
+import NostrProfileNav from '@/features/user-profile/NostrProfileNav'
 import Notify from '@/features/notify/Notify'
 import Logo from '@/app/Logo'
 
@@ -67,7 +67,7 @@ export default function NavHeader() {
                   <div className="hidden md:block">
                     <div className="ml-4 flex items-center md:ml-6">
                       <Notify/>
-                      <UserProfile/>
+                      <NostrProfileNav/>
                       {/* For some bizarre reasn, the styling for the User Profile gets corrupted if I don't have th ecommented code below??*/}
                       {/* <Menu as="div" className="relative ml-3">
                           <Transition

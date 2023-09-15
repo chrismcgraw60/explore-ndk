@@ -1,34 +1,33 @@
 'use client'
 import { create } from 'zustand'
-import { NDKUserProfile, NDKNip07Signer, NDKUser } from "@nostr-dev-kit/ndk/ndk"
+import { NDKNip07Signer, NDKUser, Npub } from "@nostr-dev-kit/ndk/ndk"
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-
-export type Nip07Response = undefined | NPubWithSigner
-
-interface NPubWithSigner{
+export interface NPub07 { 
     npub: string;
     signer: NDKNip07Signer;
 }
 
 export interface UserProfileState {
-    npubWithSigner: Nip07Response;
-    ndkProfile: NDKUserProfile | null;
-    ndkUser: NDKUser | null;
-    setNdkUser: (ndkUser: NDKUser) => void; 
-    setNdkProfile: (ndkProfile: NDKUserProfile) => void; 
-    setNpubWithSigner: (npubWithSigner: Nip07Response) => void; 
+    npub: NPub07 | undefined;
+    ndkUser: NDKUser | undefined;
+
+    setNdkUser: (ndkUser: NDKUser | undefined) => void; 
+    setNpub07: (npubWithSigner: NPub07 | undefined) => void; 
+    clear: () => void;
 }
 
 export const useUserProfileStore = create<UserProfileState>()(
     persist(
         (set) => ({
-            npubWithSigner: undefined,
-            ndkProfile: null,
-            ndkUser: null,
-            setNdkProfile: (ndkProfileToSet) => set(() => ({ndkProfile: ndkProfileToSet})),
+            npub: undefined,
+            ndkUser: undefined,
             setNdkUser: (ndkUserToSet) => set(() => ({ndkUser: ndkUserToSet})),
-            setNpubWithSigner: (setNpubWithSignerToSet) => set(() => ({npubWithSigner: setNpubWithSignerToSet})),
+            setNpub07: (npubWithSignerToSet) => set(() => ({npub: npubWithSignerToSet})),
+            clear: () => set(() => ({
+                npub : undefined,
+                ndkUser : undefined
+            }))
         }),
         {
             name: 'user-storage', // unique name

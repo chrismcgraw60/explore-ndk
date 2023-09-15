@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import NDK from '@nostr-dev-kit/ndk/ndk';
-import { useUserProfileStore, Nip07Response } from '@/features/user-profile/UserProfileStore'
+import NDK, { NDKUser, Npub } from '@nostr-dev-kit/ndk/ndk';
+import { useUserProfileStore, NPub07 } from '@/features/user-profile/UserProfileStore'
 
 /**
  * Provides login features and profile information.
@@ -9,31 +9,33 @@ import { useUserProfileStore, Nip07Response } from '@/features/user-profile/User
 export default function NostrProfile() {
 
     const { loginWithNip07, ndk } = useNDK();
-    const {ndkUser, npubWithSigner, setNdkUser, setNpubWithSigner} = useUserProfileStore((state) => state);
+    const {ndkUser, npub, setNdkUser, setNpub07} = useUserProfileStore((state) => state);
     const [ready, setReady] = useState<boolean>(false);
 
     useEffect(() => {
-        if (npubWithSigner && !ndkUser ) {
+        if (npub && !ndkUser ) {
 
-            const fetchAndSetUser = async (nip07: Nip07Response) => {
-                const user = (ndk as NDK).getUser({npub: nip07?.npub});
+            const fetchAndSetUser = async (npub: NPub07) => {
+                const user = (ndk as NDK).getUser({npub: npub?.npub});
                 await user.fetchProfile();
                 setNdkUser(user);
             };
-            fetchAndSetUser(npubWithSigner)
+            fetchAndSetUser(npub)
         }
         setReady(true)
-    }, [ndk, ndkUser, npubWithSigner, setNdkUser])
+    }, [ndk, ndkUser, npub, setNdkUser])
 
     async function connectExtension() {
-        const user : Nip07Response = await loginWithNip07();
-        setNpubWithSigner(user);
+        const user = await loginWithNip07();
+        if (user) {
+            setNpub07(user); 
+        }
     }
 
     return ready ? (
             <div>
 
-                {!npubWithSigner && (
+                {!npub && (
                     <button onClick={() => connectExtension()}>
                         Connect with Extension
                     </button>
