@@ -1,15 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { Fragment } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import { useUserProfileStore } from "@/features/user-profile/UserProfileStore";
-
-const user = {
-  name: "chrismcgraw60",
-  email: "chrismcgraw60@gmail.com",
-  imageUrl: "https://avatars.githubusercontent.com/u/4159345?v=4",
-};
+import NDK from '@nostr-dev-kit/ndk/ndk';
+import { useUserProfileStore, NPub07 } from "@/features/user-profile/UserProfileStore";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -17,26 +12,40 @@ function classNames(...classes: string[]) {
 
 export default function NostrProfileNav() {
 
-  const { loginWithNip07 } = useNDK();
-  const userProfiles = useUserProfileStore((state) => state);
+  const { loginWithNip07, ndk  } = useNDK();
+  const {ndkUser, npub, setNdkUser, setNpub07, clear} = useUserProfileStore((state) => state);
+  const [userFetchAttempted, setUserFetchAttempted] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (ndk && npub && !ndkUser ) {
+
+        const fetchAndSetUser = async (npub: NPub07) => {
+            const user = (ndk as NDK).getUser({npub: npub?.npub});
+            await user.fetchProfile();
+            setNdkUser(user);
+        };
+        fetchAndSetUser(npub)
+    }
+    setUserFetchAttempted(true)
+  }, [ndk, ndkUser, npub, setNdkUser])
 
   async function connectExtension() {
     const user = await loginWithNip07();
     if (user) {
-      userProfiles.setNpub07(user); 
+      setNpub07(user); 
     }
   }
 
+  /* Profile dropdown */
   function profileDropDown() {
     return (
       <>
-        {/* Profile dropdown */}
         <Menu as="div" className="relative ml-3">
           <div>
             <Menu.Button className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
               <span className="absolute -inset-1.5" />
               <span className="sr-only">Open user menu</span>
-              <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" />
+              <img className="h-8 w-8 rounded-full" src={ndkUser?.profile?.image} alt="" />
             </Menu.Button>
           </div>
           <Transition
@@ -55,7 +64,7 @@ export default function NostrProfileNav() {
               </Menu.Item>
 
               <Menu.Item key="sign_out">
-                { ({ active }) => (<a href="#" onClick={() => userProfiles.clear()} className={menuItemClass(active)}>Sign out</a>) }
+                { ({ active }) => (<a href="#" onClick={() => clear()} className={menuItemClass(active)}>Sign out</a>) }
               </Menu.Item>
 
             </Menu.Items>
@@ -72,7 +81,7 @@ export default function NostrProfileNav() {
     );
   }
 
-  return userProfiles.npub ? profileDropDown() : signInButton();
+  return userFetchAttempted && (npub ? profileDropDown() : signInButton());
 }
 
 function menuItemClass(active: boolean): string | undefined {
