@@ -11,6 +11,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
+    "@monaco-editor/react": "^4.5.2",
     "@nostr-dev-kit/ndk": "file:../ndk",
     "@nostr-dev-kit/ndk-react": "file:./../ndk-react/packages/ndk-react",
     "@types/lodash": "^4.14.197",
