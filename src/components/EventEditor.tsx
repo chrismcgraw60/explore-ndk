@@ -8,6 +8,7 @@ import NDK, { NDKKind, NDKEvent, NostrEvent, NDKNip07Signer } from "@nostr-dev-k
 import { useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { now } from "lodash";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 function EventEditor() {
 
@@ -83,21 +84,25 @@ function EventEditor() {
         { isPublishing ? "Publishing..." : <button onClick={() => publish()}>Publish</button> }
       </div>    
 
-      <Editor
-        beforeMount={handleEditorPreMount}
-        defaultLanguage="json"
-        defaultValue={JSON.stringify(event, null, 2)}
-        onChange={handleEditorChange}
-        theme="vs-dark"
-      />
-      
-      ({result &&
-        <div>
-          <code>
-            {result}
-          </code>
-        </div>
-      })
+      <PanelGroup direction="vertical">
+        <Panel maxSize={150}>
+          <Editor
+            beforeMount={handleEditorPreMount}
+            defaultLanguage="json"
+            defaultValue={JSON.stringify(event, null, 2)}
+            onChange={handleEditorChange}
+            theme="vs-dark"
+          />
+        </Panel>
+        <PanelResizeHandle className="h-3" />
+        <Panel maxSize={150}>
+          <div>
+            <code>
+              {result}
+            </code>
+          </div>
+        </Panel>
+      </PanelGroup>
     </>    
   );
 }
