@@ -1,30 +1,32 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { editor } from "monaco-editor";
 import Editor, { Monaco } from "@monaco-editor/react";
 import { Kind0 } from "@/features/kind-schemas/kind-schemas";
-import {NDKKind, NDKEvent, NostrEvent} from "@nostr-dev-kit/ndk"
+import NDK, { NDKKind, NDKEvent, NostrEvent, NDKNip07Signer } from "@nostr-dev-kit/ndk"
 import { useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 import { useNDK } from "@nostr-dev-kit/ndk-react";
+import { now } from "lodash";
 
 function EventEditor() {
 
   const {npub} = useUserProfileStore((state) => state);
   const event : NostrEvent = {
-    content: "flow1",
-    created_at: 0,
+    content: "",
+    created_at: now(),
     kind: NDKKind.Text,
-    pubkey: npub ? npub.npub : "KEY_GOES_HERE",
+    pubkey: npub ? npub.npub : "",
     tags: [["t", "cmg60-flow"]]
   }
 
-  const { signer, signPublishEvent, loginWithNip07, ndk } = useNDK();
-  const [isSignedIn, setSignedIn] = useState<boolean>(false);
-  const [isPublishing, setPublishing] = useState<boolean>(false);
-  const [result, setResult] = useState<string | undefined>(undefined);
-  const [eventJson, setEventJson] = useState<string | undefined>(JSON.stringify(event, null, 2));
+  const { loginWithNip07, ndk } = useNDK();
+  const [ nip07Signer, setNip07Signer] = useState<NDKNip07Signer | undefined>(undefined);
+  const [ isPublishing, setPublishing] = useState<boolean>(false);
+  const [ result, setResult] = useState<string | undefined>(undefined);
+  const [ eventJson, setEventJson] = useState<string | undefined>(JSON.stringify(event, null, 2));
   
+
 
   function handleEditorPreMount(monaco: Monaco) {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -35,15 +37,6 @@ function EventEditor() {
       allowComments: false
     });
   }
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      const login = async () => await loginWithNip07();
-      login();
-      setSignedIn(true);
-    }
-
-  }, [isSignedIn, loginWithNip07]);
 
   async function publish() {
 
@@ -59,13 +52,18 @@ function EventEditor() {
 
     try {
       publishEvent.ndk = ndk;
+
+      if (!nip07Signer) {
+        const loginResponse = await loginWithNip07();
+        const nip07Signer = loginResponse && loginResponse.signer;
+        (ndk as NDK).signer = nip07Signer;
+        setNip07Signer(nip07Signer)
+      }
+
       await publishEvent.sign();
       await publishEvent.publish();
-    
-      // const event = await signPublishEvent(publishEvent);
-      if (publishEvent) {
-        setResult(JSON.stringify(publishEvent.rawEvent(), null, 2));
-      }
+      setResult(JSON.stringify(publishEvent.rawEvent(), null, 2));
+
     }
     finally {
       setPublishing(false);
@@ -78,13 +76,12 @@ function EventEditor() {
 
   return (
     <>
-      {!signer && (<div>No Signer</div>)}
+      { !nip07Signer && (<div>No Signer</div>) }
 
-      {isSignedIn && (
-        <div>
-          { isPublishing ? "Publishing..." : <button onClick={() => publish()}>Publish</button> }
-        </div>    
-      )}
+
+      <div>
+        { isPublishing ? "Publishing..." : <button onClick={() => publish()}>Publish</button> }
+      </div>    
 
       <Editor
         beforeMount={handleEditorPreMount}

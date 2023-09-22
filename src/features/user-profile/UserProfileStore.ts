@@ -1,6 +1,6 @@
 'use client'
 import { create } from 'zustand'
-import { NDKNip07Signer, NDKUser, Npub } from "@nostr-dev-kit/ndk/ndk"
+import { NDKNip07Signer, NDKUser, Npub } from "@nostr-dev-kit/ndk"
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 export interface NPub07 { 
