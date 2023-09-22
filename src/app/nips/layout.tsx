@@ -19,7 +19,7 @@ export default function NipsLayout({
         </aside>
 
         <div className="flex flex-1 flex-col w-full">
-            <div id="content" className=" flex flex-1 overflow-y-auto paragraph p-4 bg-gray-500">
+            <div id="content" className=" flex flex-1 overflow-y-auto paragraph p-4 bg-zinc-800">
                 {children}
             </div>
         </div>

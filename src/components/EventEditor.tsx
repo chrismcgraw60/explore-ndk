@@ -76,7 +76,9 @@ function EventEditor() {
   }
 
   return (
+
     <>
+
       { !nip07Signer && (<div>No Signer</div>) }
 
 
@@ -86,24 +88,39 @@ function EventEditor() {
 
       <PanelGroup direction="vertical">
         <Panel maxSize={150}>
-          <Editor
-            beforeMount={handleEditorPreMount}
-            defaultLanguage="json"
-            defaultValue={JSON.stringify(event, null, 2)}
-            onChange={handleEditorChange}
-            theme="vs-dark"
-          />
+          <PanelGroup direction="horizontal">
+            <Panel>
+              <Editor
+                beforeMount={handleEditorPreMount}
+                defaultLanguage="json"
+                defaultValue={JSON.stringify(event, null, 2)}
+                onChange={handleEditorChange}
+                theme="vs-dark"
+              />
+            </Panel>
+            <PanelResizeHandle className="w-2 bg-zinc-800" />
+            <Panel>
+              <Editor
+                  theme="vs-dark"
+                />
+            </Panel>
+          </PanelGroup>
         </Panel>
-        <PanelResizeHandle className="h-3" />
-        <Panel maxSize={150}>
-          <div>
+        <PanelResizeHandle className="h-2 bg-zinc-800" />
+        <Panel className="h-40">
+          <div className="h-fit bg-monaco_dark">
             <code>
-              {result}
+              <pre>
+                some text to see the color
+                {result}
+              </pre>
             </code>
           </div>
         </Panel>
       </PanelGroup>
-    </>    
+
+    </>   
+
   );
 }
 
