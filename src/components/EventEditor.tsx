@@ -9,6 +9,7 @@ import { useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { now } from "lodash";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import ReactJson from 'react-json-view';
 
 function EventEditor() {
 
@@ -109,12 +110,12 @@ function EventEditor() {
         <PanelResizeHandle className="h-2 bg-zinc-800" />
         <Panel className="h-40">
           <div className="h-fit bg-monaco_dark">
-            <code>
-              <pre>
-                some text to see the color
-                {result}
-              </pre>
-            </code>
+            <ReactJson 
+              collapsed={false}
+              enableClipboard={false}
+              src={result ? JSON.parse(result) : {}}
+              theme={"monokai"} 
+            />
           </div>
         </Panel>
       </PanelGroup>
