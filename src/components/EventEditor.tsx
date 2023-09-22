@@ -1,34 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { editor } from "monaco-editor";
 import Editor, { Monaco } from "@monaco-editor/react";
 import { Kind0 } from "@/features/kind-schemas/kind-schemas";
 import NDK, { NDKKind, NDKEvent, NostrEvent, NDKNip07Signer } from "@nostr-dev-kit/ndk"
-import { useUserProfileStore } from '@/features/user-profile/UserProfileStore'
+import { NPub07, useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { now } from "lodash";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import ReactJson from 'react-json-view';
 
-function EventEditor() {
-
-  const {npub} = useUserProfileStore((state) => state);
-  const event : NostrEvent = {
+function initEvent(npub: NPub07 | undefined) : NostrEvent {
+  return {
     content: "",
     created_at: now(),
     kind: NDKKind.Text,
     pubkey: npub ? npub.npub : "",
     tags: [["t", "cmg60-flow"]]
-  }
+  };
+}
 
+function EventEditor() {
+
+  const {npub} = useUserProfileStore((state) => state);
   const { loginWithNip07, ndk } = useNDK();
   const [ nip07Signer, setNip07Signer] = useState<NDKNip07Signer | undefined>(undefined);
   const [ isPublishing, setPublishing] = useState<boolean>(false);
+  const [ editorEvent, setEditorEvent] = useState<NostrEvent>(initEvent(npub));
   const [ result, setResult] = useState<string | undefined>(undefined);
-  const [ eventJson, setEventJson] = useState<string | undefined>(JSON.stringify(event, null, 2));
-  
-
 
   function handleEditorPreMount(monaco: Monaco) {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -42,11 +42,10 @@ function EventEditor() {
 
   async function publish() {
 
-    if (!eventJson) return;
+    if (!editorEvent) return;
 
     setPublishing(true);
 
-    const editorEvent : NostrEvent = JSON.parse(eventJson);
     const publishEvent = new NDKEvent();
     publishEvent.kind = editorEvent.kind;
     publishEvent.content = editorEvent.content;
@@ -65,50 +64,60 @@ function EventEditor() {
       await publishEvent.sign();
       await publishEvent.publish();
       setResult(JSON.stringify(publishEvent.rawEvent(), null, 2));
-
+    }
+    catch(err) {
+      console.log("CAUGHT ERR"  + err)
+      console.log(err);
     }
     finally {
       setPublishing(false);
     }
   }
 
-  function handleEditorChange(value: string | undefined,  _: editor.IModelContentChangedEvent ) {
-    setEventJson(value);
+  function handleEventEditorChange(value: string | undefined,  _: editor.IModelContentChangedEvent ) {
+    value && setEditorEvent(JSON.parse(value));
+  }
+
+  function handleContentEditorChange(value: string | undefined,  _: editor.IModelContentChangedEvent ) {
+    setEditorEvent({ ...editorEvent, content: value || "" })
   }
 
   return (
-
     <>
-
-      { !nip07Signer && (<div>No Signer</div>) }
-
-
       <div>
-        { isPublishing ? "Publishing..." : <button onClick={() => publish()}>Publish</button> }
+        { isPublishing ? "Publishing..." : <button onClick={() => publish()}> {nip07Signer ? "Publish" : "Publish [!S]"} </button> }
       </div>    
 
       <PanelGroup direction="vertical">
-        <Panel maxSize={150}>
+
+        <Panel>
           <PanelGroup direction="horizontal">
-            <Panel>
+
+            <Panel id="event_editor">
               <Editor
                 beforeMount={handleEditorPreMount}
                 defaultLanguage="json"
-                defaultValue={JSON.stringify(event, null, 2)}
-                onChange={handleEditorChange}
+                value={JSON.stringify(editorEvent, null, 2)}
+                onChange={handleEventEditorChange}
                 theme="vs-dark"
               />
             </Panel>
+
             <PanelResizeHandle className="w-2 bg-zinc-800" />
-            <Panel>
+
+            <Panel id="content_editor">
               <Editor
+                  defaultValue={""}
+                  onChange={handleContentEditorChange}
                   theme="vs-dark"
                 />
             </Panel>
           </PanelGroup>
         </Panel>
+
         <PanelResizeHandle className="h-2 bg-zinc-800" />
-        <Panel className="h-40">
+
+        <Panel id="response_viewer" className="h-40">
           <div className="h-fit bg-monaco_dark">
             <ReactJson 
               collapsed={false}
@@ -118,6 +127,7 @@ function EventEditor() {
             />
           </div>
         </Panel>
+
       </PanelGroup>
 
     </>   
@@ -126,3 +136,4 @@ function EventEditor() {
 }
 
 export default EventEditor;
+
