@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { editor } from "monaco-editor";
 import Editor, { Monaco } from "@monaco-editor/react";
 import { Kind0 } from "@/features/kind-schemas/kind-schemas";
@@ -9,7 +9,13 @@ import { NPub07, useUserProfileStore } from '@/features/user-profile/UserProfile
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { now } from "lodash";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import ReactJson from 'react-json-view';
+
+import dynamic from "next/dynamic";
+
+const JsonViewerDyn = dynamic(
+  () => import('@/components/JsonViewer'), 
+  {  ssr: false }
+);
 
 function initEvent(npub: NPub07 | undefined) : NostrEvent {
   return {
@@ -118,21 +124,12 @@ function EventEditor() {
         <PanelResizeHandle className="h-2 bg-zinc-800" />
 
         <Panel id="response_viewer" className="h-40">
-          <div className="h-fit bg-monaco_dark">
-            <ReactJson 
-              displayDataTypes={false}
-              collapsed={false}
-              enableClipboard={false}
-              src={result ? JSON.parse(result) : {}}
-              theme={"monokai"} 
-            />
-          </div>
+          <JsonViewerDyn json={result}/>
         </Panel>
 
       </PanelGroup>
 
     </>   
-
   );
 }
 
