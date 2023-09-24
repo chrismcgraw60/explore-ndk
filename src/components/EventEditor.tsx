@@ -120,6 +120,7 @@ function EventEditor() {
         <Panel id="response_viewer" className="h-40">
           <div className="h-fit bg-monaco_dark">
             <ReactJson 
+              displayDataTypes={false}
               collapsed={false}
               enableClipboard={false}
               src={result ? JSON.parse(result) : {}}
