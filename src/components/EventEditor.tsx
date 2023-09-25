@@ -27,11 +27,30 @@ function initEvent(npub: NPub07 | undefined) : NostrEvent {
   };
 }
 
+async function publishNdkEvent(editorEvent: NostrEvent, ndk: NDK | undefined) {
+  const publishEvent = new NDKEvent();
+  publishEvent.kind = editorEvent.kind;
+  publishEvent.content = editorEvent.content;
+  publishEvent.tags = editorEvent.tags;
+  publishEvent.ndk = ndk;
+
+  await publishEvent.sign();
+  await publishEvent.publish();
+  return publishEvent;
+}
+
+async function ensureSigner(ndk: NDK | undefined) {
+  if (ndk && !ndk.signer) {
+    const signer = new NDKNip07Signer();
+    await signer.user();
+    ndk.signer = signer;
+  }
+}
+
 function EventEditor() {
 
-  const {npub} = useUserProfileStore((state) => state);
-  const { loginWithNip07, ndk } = useNDK();
-  const [ nip07Signer, setNip07Signer] = useState<NDKNip07Signer | undefined>(undefined);
+  const { npub } = useUserProfileStore((state) => state);
+  const { ndk } = useNDK();
   const [ isPublishing, setPublishing] = useState<boolean>(false);
   const [ editorEvent, setEditorEvent] = useState<NostrEvent>(initEvent(npub));
   const [ result, setResult] = useState<string | undefined>(undefined);
@@ -52,28 +71,13 @@ function EventEditor() {
 
     setPublishing(true);
 
-    const publishEvent = new NDKEvent();
-    publishEvent.kind = editorEvent.kind;
-    publishEvent.content = editorEvent.content;
-    publishEvent.tags = editorEvent.tags;
-
     try {
-      publishEvent.ndk = ndk;
-
-      if (!nip07Signer) {
-        const loginResponse = await loginWithNip07();
-        const nip07Signer = loginResponse && loginResponse.signer;
-        (ndk as NDK).signer = nip07Signer;
-        setNip07Signer(nip07Signer)
-      }
-
-      await publishEvent.sign();
-      await publishEvent.publish();
+      await ensureSigner(ndk);
+      const publishEvent = await publishNdkEvent(editorEvent, ndk);
       setResult(JSON.stringify(publishEvent.rawEvent(), null, 2));
     }
     catch(err) {
-      console.log("CAUGHT ERR"  + err)
-      console.log(err);
+      console.log("Error publishing: "  + err)
     }
     finally {
       setPublishing(false);
@@ -91,7 +95,7 @@ function EventEditor() {
   return (
     <>
       <div>
-        { isPublishing ? "Publishing..." : <button onClick={() => publish()}> {nip07Signer ? "Publish" : "Publish [!S]"} </button> }
+        { isPublishing ? "Publishing..." : <button onClick={() => publish()}> {ndk?.signer ? "Publish" : "Publish [!S]"} </button> }
       </div>    
 
       <PanelGroup direction="vertical">
