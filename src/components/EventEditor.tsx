@@ -4,25 +4,27 @@ import React, { useEffect, useRef, useState } from "react";
 import { editor } from "monaco-editor";
 import Editor, { Monaco } from "@monaco-editor/react";
 import { Kind0 } from "@/features/kind-schemas/kind-schemas";
-import NDK, { NDKKind, NDKEvent, NostrEvent, NDKNip07Signer } from "@nostr-dev-kit/ndk"
+import NDK, { NDKKind, NDKEvent, NDKFilter, NostrEvent, NDKNip07Signer, NDKUser } from "@nostr-dev-kit/ndk"
 import { NPub07, useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { now } from "lodash";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import dynamic from "next/dynamic";
+import NostrEvents from "./NostrEvents";
 
 const JsonViewerDyn = dynamic(
   () => import('@/components/JsonViewer'), 
   {  ssr: false }
 );
 
-function initEvent(npub: NPub07 | undefined) : NostrEvent {
+function initEvent(ndkUser: NDKUser | undefined) : NostrEvent {
+
   return {
     content: "",
     created_at: now(),
     kind: NDKKind.Text,
-    pubkey: npub ? npub.npub : "",
+    pubkey: ndkUser ? ndkUser["_hexpubkey"] : "loading..",
     tags: [["t", "cmg60-flow"]]
   };
 }
@@ -49,11 +51,12 @@ async function ensureSigner(ndk: NDK | undefined) {
 
 function EventEditor() {
 
-  const { npub } = useUserProfileStore((state) => state);
+  const { npub, ndkUser } = useUserProfileStore((state) => state);
   const { ndk } = useNDK();
   const [ isPublishing, setPublishing] = useState<boolean>(false);
-  const [ editorEvent, setEditorEvent] = useState<NostrEvent>(initEvent(npub));
-  const [ result, setResult] = useState<string | undefined>(undefined);
+  const [ editorEvent, setEditorEvent] = useState<NostrEvent | undefined>(undefined);
+  const [ feedFilter, setFeedFilter] = useState<NDKFilter | undefined>(undefined);
+  const [ result, setResult] = useState<NostrEvent | undefined>(undefined);
 
   function handleEditorPreMount(monaco: Monaco) {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -64,6 +67,20 @@ function EventEditor() {
       allowComments: false
     });
   }
+  
+  useEffect(() => {
+    if (!ndkUser) return;
+
+      setFeedFilter({
+        kinds: [1],
+        authors: [ndkUser["_hexpubkey"]]
+      });
+
+      if (!editorEvent) {
+        setEditorEvent(initEvent(ndkUser));
+      }
+
+  }, [editorEvent, ndkUser]);
 
   async function publish() {
 
@@ -74,7 +91,13 @@ function EventEditor() {
     try {
       await ensureSigner(ndk);
       const publishEvent = await publishNdkEvent(editorEvent, ndk);
-      setResult(JSON.stringify(publishEvent.rawEvent(), null, 2));
+      setResult(publishEvent.rawEvent());
+
+      ndkUser && 
+      setFeedFilter({
+        kinds: [1],
+        authors: [ndkUser["_hexpubkey"]]
+      });
     }
     catch(err) {
       console.log("Error publishing: "  + err)
@@ -89,7 +112,7 @@ function EventEditor() {
   }
 
   function handleContentEditorChange(value: string | undefined,  _: editor.IModelContentChangedEvent ) {
-    setEditorEvent({ ...editorEvent, content: value || "" })
+    setEditorEvent(editorEvent && { ...editorEvent, content: value || "" })
   }
 
   return (
@@ -127,8 +150,20 @@ function EventEditor() {
 
         <PanelResizeHandle className="h-2 bg-zinc-800" />
 
-        <Panel id="response_viewer" className="h-40">
-          <JsonViewerDyn json={result}/>
+        <Panel>
+          <PanelGroup direction="horizontal">
+            
+            <Panel className="h-auto" id="response_viewer">
+              <JsonViewerDyn ndkEvent={result}/>
+            </Panel>
+
+            <PanelResizeHandle className="w-2 bg-zinc-800" />
+
+            <Panel className="h-auto bg-monaco_dark" id="eventViewer_viewer" style={{overflowY: "auto"}}>
+                <NostrEvents filter={ feedFilter } currentEventId={result?.id} />
+            </Panel>
+
+          </PanelGroup>
         </Panel>
 
       </PanelGroup>

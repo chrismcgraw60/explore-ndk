@@ -3,37 +3,60 @@
 import { useState, useEffect, JSX } from 'react';
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { NDKFilter, NDKEvent } from "@nostr-dev-kit/ndk";
+import { NPub07, useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 import _ from "lodash";
+import dynamic from 'next/dynamic';
 
-export default function NostrEvents() {
+const JsonViewerDyn = dynamic(
+    () => import('@/components/JsonViewer'), 
+    {  ssr: false }
+  );
+  
+interface NostrEventProps {
+    filter?: NDKFilter;
+    currentEventId?: string;
+}
 
+const defaultFilter: NDKFilter = {
+    kinds: [1],
+    "#t": ["ndk"],
+};
+
+const NostrEvents = ({filter, currentEventId} : NostrEventProps) => {
+
+    const [isLoading, setLoading] = useState<boolean>(false);
     const [events, setEvents] = useState<NDKEvent[] | null>(null);
     const { fetchEvents } = useNDK();
 
     useEffect(() => {
-        
-        const filter: NDKFilter = {
-            kinds: [1],
-            "#t": ["ndk"],
-        };
-
         const fetch = async () => {
-            const evs = await fetchEvents(filter);
+            setEvents([]);
+            setLoading(true);
+            const filterToApply: NDKFilter = filter ? filter : defaultFilter;
+            const evs = await fetchEvents(filterToApply);
             setEvents(evs);
+            setLoading(false);
         };
-
         fetch();
 
-    }, [fetchEvents])
+    }, [fetchEvents, filter])
 
     const eventDivs: JSX.Element[] = [];
     _.forEach(events, (ev) => {
-        eventDivs.push(<div>{ev.content}</div>);
+        const isSelected = (ev.id === currentEventId);
+        eventDivs.push(
+            <div className='p-1' id={ev.id} key={ev.id}>
+                <JsonViewerDyn ndkEvent={ev.rawEvent()} isSelected={isSelected}/>
+            </div>);
     })
 
     return <>
-        <div className="min-h-full">
-            {eventDivs}
+        <div><button>Refresh</button></div>
+        <div className='overflow-y-auto overflow-x-hidden' >
+            {isLoading ? "Loading..." : eventDivs}
         </div>
     </>
+    
 }
+
+export default NostrEvents;

@@ -1,13 +1,21 @@
+import NDK, { NDKKind, NDKEvent, NDKFilter, NostrEvent, NDKNip07Signer, NDKUser } from "@nostr-dev-kit/ndk"
 
 import ReactJson from 'react-json-view';
+import { json } from "stream/consumers";
 
-export const JsonViewer = ({ json: jsonObj } : { json: any})  : JSX.Element => (
+interface JsonViewerProps {
+  ndkEvent: NostrEvent | undefined;
+  isSelected?: boolean;
+}
+
+export const JsonViewer = ({ ndkEvent, isSelected } : JsonViewerProps)  : JSX.Element => (
   <div className="h-fit bg-monaco_dark">
+    <div>{isSelected && "------>"} {ndkEvent?.content}</div>
     <ReactJson 
       displayDataTypes={false}
-      collapsed={false}
+      collapsed={true}
       enableClipboard={false}
-      src={jsonObj ? JSON.parse(jsonObj) : {}}
+      src={ndkEvent || {}}
       theme={"monokai"} 
     />
   </div>
