@@ -9,11 +9,10 @@ export interface NPub07 {
 }
 
 export interface UserProfileState {
-    npub: NPub07 | undefined;
-    ndkUser: NDKUser | undefined;
+    npub: string | undefined;
+    ndkUser: NDKUser | undefined; // shouldn't be on state, hydrate via profile nave on page load.
+    // store profile, this has no functions
 
-    setNdkUser: (ndkUser: NDKUser | undefined) => void; 
-    setNpub07: (npubWithSigner: NPub07 | undefined) => void; 
     clear: () => void;
     fetchUser: (ndk:NDK) => void;
 }
@@ -34,6 +33,7 @@ async function _fetchUser(get: getFn, set: setFn, ndk:NDK) {
     await user.fetchProfile();
     set((s) => ({
         ...s,
+        npub : user.hexpubkey,
         ndkUser : user
     }))
 }
@@ -44,10 +44,6 @@ export const useUserProfileStore = create<UserProfileState>()(
             npub: undefined,
 
             ndkUser: undefined,
-
-            setNdkUser: (ndkUserToSet) => set(() => ({ndkUser: ndkUserToSet})),
-
-            setNpub07: (npubWithSignerToSet) => set(() => ({npub: npubWithSignerToSet})),
 
             clear: () => set(() => ({
                 npub : undefined,
