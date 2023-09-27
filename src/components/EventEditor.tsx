@@ -121,10 +121,20 @@ function EventEditor() {
         { isPublishing ? "Publishing..." : <button onClick={() => publish()}> {ndk?.signer ? "Publish" : "Publish [!S]"} </button> }
       </div>    
 
-      <PanelGroup direction="vertical">
+      <PanelGroup direction="horizontal">
 
         <Panel>
-          <PanelGroup direction="horizontal">
+          <PanelGroup direction="vertical">
+
+            <Panel id="content_editor">
+              <Editor 
+                  defaultValue={""}
+                  onChange={handleContentEditorChange}
+                  theme="vs-dark"
+                />
+            </Panel>
+
+            <PanelResizeHandle className="h-2 bg-zinc-800" />
 
             <Panel id="event_editor">
               <Editor
@@ -136,34 +146,13 @@ function EventEditor() {
               />
             </Panel>
 
-            <PanelResizeHandle className="w-2 bg-zinc-800" />
-
-            <Panel id="content_editor">
-              <Editor
-                  defaultValue={""}
-                  onChange={handleContentEditorChange}
-                  theme="vs-dark"
-                />
-            </Panel>
           </PanelGroup>
         </Panel>
 
-        <PanelResizeHandle className="h-2 bg-zinc-800" />
+        <PanelResizeHandle className="w-2 bg-zinc-800" />
 
-        <Panel>
-          <PanelGroup direction="horizontal">
-            
-            <Panel className="h-auto" id="response_viewer">
-              <JsonViewerDyn ndkEvent={result}/>
-            </Panel>
-
-            <PanelResizeHandle className="w-2 bg-zinc-800" />
-
-            <Panel className="h-auto bg-monaco_dark" id="eventViewer_viewer" style={{overflowY: "auto"}}>
-                <NostrEvents filter={ feedFilter } currentEventId={result?.id} />
-            </Panel>
-
-          </PanelGroup>
+        <Panel className="h-auto bg-monaco_dark" id="eventViewer_viewer" style={{overflowY: "auto"}}>
+            <NostrEvents filter={ feedFilter } currentEventId={result?.id} />
         </Panel>
 
       </PanelGroup>
