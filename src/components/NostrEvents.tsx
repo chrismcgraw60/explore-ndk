@@ -1,11 +1,16 @@
 'use client'
 
-import { useState, useEffect, JSX, useCallback } from 'react';
+import { useState, useEffect, JSX, useCallback, useReducer } from 'react';
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import { NDKFilter, NDKEvent } from "@nostr-dev-kit/ndk";
+import NDK, { NDKFilter, NDKEvent, NDKSubscription } from "@nostr-dev-kit/ndk";
 import { NPub07, useUserProfileStore } from '@/features/user-profile/UserProfileStore'
-import _ from "lodash";
-import { JsonViewerDynamic } from './JsonViewerDynamic';
+import _, { sumBy } from "lodash";
+import dynamic from 'next/dynamic';
+
+const JsonViewerDyn = dynamic(
+    () => import('@/components/JsonViewer'), 
+    {  ssr: false }
+  );
   
 interface NostrEventProps {
     filter?: NDKFilter;
@@ -17,63 +22,42 @@ const defaultFilter: NDKFilter = {
     "#t": ["ndk"],
 };
 
+function eventReducer(state: NDKEvent[], ndkEv: NDKEvent) {
+    return [...state, ndkEv];
+}
+
 const NostrEvents = ({filter, currentEventId} : NostrEventProps) => {
 
+    const [ndkSub, setNdkSub] = useState<NDKSubscription | undefined>(undefined)
     const [isLoading, setLoading] = useState<boolean>(false);
-    const [events, setEvents] = useState<NDKEvent[] | null>(null);
+    const [events, dispatch] = useReducer(eventReducer, []);
     const { ndk } = useNDK();
 
-    const fetchEvents = useCallback (async (filter: NDKFilter) : Promise<NDKEvent[]> => {
-        if (ndk === undefined) return [];
-
-        return new Promise((resolve) => {
-
-            const events: Map<string, NDKEvent> = new Map();
-
-            const relaySetSubscription = ndk.subscribe(filter, {
-                closeOnEose: true,
-            });
-
-            relaySetSubscription.on("event", (event: NDKEvent) => {
-                event.ndk = ndk;
-                events.set(event.tagId(), event);
-            });
-
-            relaySetSubscription.on("eose", () => {
-                setTimeout(() => resolve(Array.from(new Set(events.values()))), 500);
-            });
-        });
-    }, [ndk]); 
-
-    const fetch = useCallback (
-        async (filter : NDKFilter) => {
-            setLoading(true);
-            const loadedEvents = await fetchEvents(filter);
-            setEvents(loadedEvents);
-            setLoading(false);
-        }, [fetchEvents]
-    );
+    const filterToApply: NDKFilter = filter ? filter : defaultFilter;
 
     useEffect(() => {
-        const filterToApply: NDKFilter = filter ? filter : defaultFilter;
-        fetch(filterToApply);
-    }, [fetch, fetchEvents, filter])
+        if (!ndk || ndkSub) return;
+
+        const sub = ndk.subscribe(filterToApply, {});
+
+        sub.on("event", (ndkEv: NDKEvent) => {
+            ndkEv.ndk = ndk;
+            dispatch(ndkEv);
+        });
+
+        setNdkSub(sub);
+    }, [ndk, filterToApply, ndkSub, events]);
 
     const eventDivs: JSX.Element[] = [];
     _.forEach(events, (ev) => {
         const isSelected = (ev.id === currentEventId);
         eventDivs.push(
             <div className='p-1' id={ev.id} key={ev.id}>
-                <JsonViewerDynamic ndkEvent={ev.rawEvent()} isSelected={isSelected}/>
+                <JsonViewerDyn ndkEvent={ev.rawEvent()} isSelected={isSelected}/>
             </div>);
     })
 
-    function refreshEvents(): void {
-        filter && fetch(filter);
-    }
-
     return <>
-        <div><button onClick={() => refreshEvents()}>Refresh</button></div>
         <div className='overflow-y-auto overflow-x-hidden' >
             {isLoading ? "Loading..." : eventDivs}
         </div>

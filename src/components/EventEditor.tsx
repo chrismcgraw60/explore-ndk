@@ -1,23 +1,16 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { editor } from "monaco-editor";
 import Editor, { Monaco } from "@monaco-editor/react";
 import { Kind0 } from "@/features/kind-schemas/kind-schemas";
 import NDK, { NDKKind, NDKEvent, NDKFilter, NostrEvent, NDKNip07Signer, NDKUser } from "@nostr-dev-kit/ndk"
-import { NPub07, useUserProfileStore } from '@/features/user-profile/UserProfileStore'
+import { useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 import { useNDK } from "@nostr-dev-kit/ndk-react";
 import { now } from "lodash";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import dynamic from "next/dynamic";
 import NostrEvents from "./NostrEvents";
-import NostrEventsR from "./NostrEventsR";
-
-const JsonViewerDyn = dynamic(
-  () => import('@/components/JsonViewer'), 
-  {  ssr: false }
-);
 
 function initEvent(ndkUser: NDKUser | undefined) : NostrEvent {
 
@@ -153,7 +146,7 @@ function EventEditor() {
         <PanelResizeHandle className="w-2 bg-zinc-800" />
 
         <Panel className="h-auto bg-monaco_dark" id="eventViewer_viewer" style={{overflowY: "auto"}}>
-            <NostrEventsR filter={ feedFilter } currentEventId={result?.id} />
+            <NostrEvents filter={ feedFilter } currentEventId={result?.id} />
         </Panel>
 
       </PanelGroup>
