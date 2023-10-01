@@ -12,6 +12,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 import dynamic from "next/dynamic";
 import NostrEvents from "./NostrEvents";
+import NostrEventsR from "./NostrEventsR";
 
 const JsonViewerDyn = dynamic(
   () => import('@/components/JsonViewer'), 
@@ -152,7 +153,7 @@ function EventEditor() {
         <PanelResizeHandle className="w-2 bg-zinc-800" />
 
         <Panel className="h-auto bg-monaco_dark" id="eventViewer_viewer" style={{overflowY: "auto"}}>
-            <NostrEvents filter={ feedFilter } currentEventId={result?.id} />
+            <NostrEventsR filter={ feedFilter } currentEventId={result?.id} />
         </Panel>
 
       </PanelGroup>
