@@ -5,8 +5,7 @@ import { PropsWithChildren } from "react";
 
 const relayUrls = [
   "wss://relay.damus.io",
-  "wss://relay.snort.social",
-  "wss://purplepag.es",
+  // "wss://relay.snort.social",
 ];
 
 /**

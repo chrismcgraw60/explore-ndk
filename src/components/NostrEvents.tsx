@@ -1,39 +1,68 @@
 'use client'
 
-import { useState, useEffect, JSX } from 'react';
+import { useState, useEffect, JSX, useCallback, useReducer } from 'react';
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import { NDKFilter, NDKEvent } from "@nostr-dev-kit/ndk/ndk";
-import _ from "lodash";
+import NDK, { NDKFilter, NDKEvent, NDKSubscription } from "@nostr-dev-kit/ndk";
+import { NPub07, useUserProfileStore } from '@/features/user-profile/UserProfileStore'
+import _, { sumBy } from "lodash";
+import dynamic from 'next/dynamic';
 
-export default function NostrEvents() {
+const JsonViewerDyn = dynamic(
+    () => import('@/components/JsonViewer'), 
+    {  ssr: false }
+  );
+  
+interface NostrEventProps {
+    filter?: NDKFilter;
+    currentEventId?: string;
+}
 
-    const [events, setEvents] = useState<NDKEvent[] | null>(null);
-    const { fetchEvents } = useNDK();
+const defaultFilter: NDKFilter = {
+    kinds: [1],
+    "#t": ["ndk"],
+};
+
+function eventReducer(state: NDKEvent[], ndkEv: NDKEvent) {
+    return [...state, ndkEv];
+}
+
+const NostrEvents = ({filter, currentEventId} : NostrEventProps) => {
+
+    const [ndkSub, setNdkSub] = useState<NDKSubscription | undefined>(undefined)
+    const [isLoading, setLoading] = useState<boolean>(false);
+    const [events, dispatch] = useReducer(eventReducer, []);
+    const { ndk } = useNDK();
+
+    const filterToApply: NDKFilter = filter ? filter : defaultFilter;
 
     useEffect(() => {
-        
-        const filter: NDKFilter = {
-            kinds: [1],
-            "#t": ["ndk"],
-        };
+        if (!ndk || ndkSub) return;
 
-        const fetch = async () => {
-            const evs = await fetchEvents(filter);
-            setEvents(evs);
-        };
+        const sub = ndk.subscribe(filterToApply, {});
 
-        fetch();
+        sub.on("event", (ndkEv: NDKEvent) => {
+            ndkEv.ndk = ndk;
+            dispatch(ndkEv);
+        });
 
-    }, [fetchEvents])
+        setNdkSub(sub);
+    }, [ndk, filterToApply, ndkSub, events]);
 
     const eventDivs: JSX.Element[] = [];
     _.forEach(events, (ev) => {
-        eventDivs.push(<div>{ev.content}</div>);
+        const isSelected = (ev.id === currentEventId);
+        eventDivs.push(
+            <div className='p-1' id={ev.id} key={ev.id}>
+                <JsonViewerDyn ndkEvent={ev.rawEvent()} isSelected={isSelected}/>
+            </div>);
     })
 
     return <>
-        <div className="min-h-full">
-            {eventDivs}
+        <div className='overflow-y-auto overflow-x-hidden' >
+            {isLoading ? "Loading..." : eventDivs}
         </div>
     </>
+    
 }
+
+export default NostrEvents;

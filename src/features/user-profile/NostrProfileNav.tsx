@@ -3,8 +3,8 @@
 import { Fragment, useState, useEffect } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { useNDK } from "@nostr-dev-kit/ndk-react";
-import NDK from '@nostr-dev-kit/ndk/ndk';
-import { useUserProfileStore, NPub07 } from "@/features/user-profile/UserProfileStore";
+import NDK from '@nostr-dev-kit/ndk';
+import { useUserProfileStore } from "@/features/user-profile/UserProfileStore";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -12,28 +12,21 @@ function classNames(...classes: string[]) {
 
 export default function NostrProfileNav() {
 
-  const { loginWithNip07, ndk  } = useNDK();
-  const {ndkUser, npub, setNdkUser, setNpub07, clear} = useUserProfileStore((state) => state);
-  const [userFetchAttempted, setUserFetchAttempted] = useState<boolean>(false);
+  const {ndkUser, clear, fetchUser} = useUserProfileStore((state) => state);
+  const { ndk  } = useNDK();
+  const [isLoadingUser, setLoadingUser] = useState<boolean>(false);
+  const [userLoaded, setUserLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    if (ndk && npub && !ndkUser ) {
-
-        const fetchAndSetUser = async (npub: NPub07) => {
-            const user = (ndk as NDK).getUser({npub: npub?.npub});
-            await user.fetchProfile();
-            setNdkUser(user);
-        };
-        fetchAndSetUser(npub)
+    if (isLoadingUser) {
+      fetchUser(ndk as NDK);
+      setLoadingUser(false);    
     }
-    setUserFetchAttempted(true)
-  }, [ndk, ndkUser, npub, setNdkUser])
+    setUserLoaded(!!ndkUser);
+  }, [ndk, fetchUser, userLoaded, isLoadingUser, ndkUser])
 
   async function connectExtension() {
-    const user = await loginWithNip07();
-    if (user) {
-      setNpub07(user); 
-    }
+    setLoadingUser(true);
   }
 
   /* Profile dropdown */
@@ -81,7 +74,7 @@ export default function NostrProfileNav() {
     );
   }
 
-  return userFetchAttempted && (npub ? profileDropDown() : signInButton());
+  return userLoaded ? profileDropDown() : (isLoadingUser ? "Loading Profile..." : signInButton());
 }
 
 function menuItemClass(active: boolean): string | undefined {
