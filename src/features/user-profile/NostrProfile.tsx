@@ -1,46 +1,18 @@
 import { useState, useEffect } from "react";
-import { useNDK } from "@nostr-dev-kit/ndk-react";
-import NDK from '@nostr-dev-kit/ndk';
-import { useUserProfileStore, NPub07 } from '@/features/user-profile/UserProfileStore'
+import { useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 
 /**
  * Provides login features and profile information.
  */
 export default function NostrProfile() {
 
-    const { loginWithNip07, ndk } = useNDK();
-    const {ndkUser, npub, setNdkUser, setNpub07} = useUserProfileStore((state) => state);
+    const {ndkUser } = useUserProfileStore((state) => state);
     const [ready, setReady] = useState<boolean>(false);
 
-    useEffect(() => {
-        if (ndk && npub && !ndkUser ) {
-
-            const fetchAndSetUser = async (npub: NPub07) => {
-                const user = (ndk as NDK).getUser({npub: npub?.npub});
-                await user.fetchProfile();
-                setNdkUser(user);
-            };
-            fetchAndSetUser(npub)
-        }
-        setReady(true)
-    }, [ndk, ndkUser, npub, setNdkUser])
-
-    async function connectExtension() {
-        const user = await loginWithNip07();
-        if (user) {
-            setNpub07(user); 
-        }
-    }
+    useEffect(() => setReady(true), [])
 
     return ready ? (
             <div>
-
-                {!npub && (
-                    <button onClick={() => connectExtension()}>
-                        Connect with Extension
-                    </button>
-                )}
-    
                 <div className="overflow-auto">
                     <code>
                         {ndkUser && (
@@ -50,7 +22,6 @@ export default function NostrProfile() {
                         )}
                     </code>
                 </div>
-                
             </div>
     ) : null
 }
