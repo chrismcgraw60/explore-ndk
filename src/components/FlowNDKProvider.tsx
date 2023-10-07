@@ -3,7 +3,7 @@
 import { NDKProvider } from "@nostr-dev-kit/ndk-react";
 import { PropsWithChildren } from "react";
 
-const relayUrls = [
+export const relayUrls = [
   "wss://relay.damus.io",
   // "wss://relay.snort.social",
 ];
