@@ -1,7 +1,7 @@
 import NDK, { NDKEvent, NDKFilter, NDKSubscription } from '@nostr-dev-kit/ndk'
 import { createStore } from 'zustand'
 
-export type ZuSetFn<T> = (
+type ZuSetFn<T> = (
     partial: T | Partial<T> | ((state: T) => T | Partial<T>), 
     replace?: boolean | undefined) => void;
 
@@ -46,8 +46,6 @@ const _fetchEvents = (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter) : NDK
 
     sub.on("event", (ndkEv: NDKEvent) => {
         
-        ndkEv.ndk = ndk;
-
         const currentEvents = get().events;
 
         set({
@@ -55,7 +53,6 @@ const _fetchEvents = (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter) : NDK
         })
     });
 
-    
     return sub;
 }
 

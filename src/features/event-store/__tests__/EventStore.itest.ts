@@ -4,6 +4,7 @@ import 'websocket-polyfill'
 import { createEventStore, } from '@/features/event-store/EventStore';
 import NDK, { NDKFilter } from '@nostr-dev-kit/ndk';
 
+const TEST_TIMEOUT = 10000;
 const assertAfter = (delay: number, fn: ()=>boolean) => {
      return new Promise(resolve => setTimeout(() => resolve(fn()), delay));
 }
@@ -46,7 +47,7 @@ describe ('NDK sync', () => {
 
           expect(result).toBeTruthy();
      
-     }, 10000);
+     }, TEST_TIMEOUT);
 
      test('fetchEvents', async () => {   
      
@@ -56,6 +57,6 @@ describe ('NDK sync', () => {
 
           console.log("Returned event count:" + bs.getState().events.length);
      
-     }, 10000);
+     }, TEST_TIMEOUT);
      
 });
