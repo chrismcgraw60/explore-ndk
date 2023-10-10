@@ -2,14 +2,14 @@
 import 'websocket-polyfill'
 
 import { createEventStore, } from '@/features/event-store/EventStore';
-import NDK, { NDKFilter } from '@nostr-dev-kit/ndk';
+import NDK, { NDKFilter, NDKSubscription } from '@nostr-dev-kit/ndk';
 
 const TEST_TIMEOUT = 10000;
 const assertAfter = (delay: number, fn: ()=>boolean) => {
      return new Promise(resolve => setTimeout(() => resolve(fn()), delay));
 }
 
-describe ('NDK sync', () => {
+describe ('Populating Events', () => {
 
      const relayUrls = [
           "wss://relay.damus.io",
@@ -26,6 +26,7 @@ describe ('NDK sync', () => {
      });
 
      beforeEach( async () => {
+
           ndk = new NDK({
                explicitRelayUrls: relayUrls
           });
@@ -34,7 +35,7 @@ describe ('NDK sync', () => {
 
      afterEach(() => relayUrls.map(relay => ndk.pool.removeRelay(relay)));
 
-     test('subscribe', async () => {  
+     test('using subscribe', async () => {  
           
           const bs = createEventStore();
 
@@ -49,13 +50,15 @@ describe ('NDK sync', () => {
      
      }, TEST_TIMEOUT);
 
-     test('fetchEvents', async () => {   
+     test('using fetchEvents', async () => {   
      
           const bs = createEventStore();
 
           await bs.getState().fetchEventsS(ndk, defaultFilter);
 
           console.log("Returned event count:" + bs.getState().events.length);
+
+          expect(bs.getState().events.length).toBeGreaterThan(0);
      
      }, TEST_TIMEOUT);
      
