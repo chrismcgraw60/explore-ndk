@@ -6,7 +6,7 @@ import Editor, { Monaco } from "@monaco-editor/react";
 import { Kind0 } from "@/features/kind-schemas/kind-schemas";
 import NDK, { NDKKind, NDKEvent, NDKFilter, NostrEvent, NDKNip07Signer, NDKUser } from "@nostr-dev-kit/ndk"
 import { useUserProfileStore } from '@/features/user-profile/UserProfileStore'
-import { useNDK } from "@nostr-dev-kit/ndk-react";
+import { useNDK } from "@/hooks/useNDK";
 import { now } from "lodash";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, JSX, useCallback, useReducer } from 'react';
-import { useNDK } from "@nostr-dev-kit/ndk-react";
+import { useNDK } from "@/hooks/useNDK";
 import NDK, { NDKFilter, NDKEvent, NDKSubscription } from "@nostr-dev-kit/ndk";
 import { NPub07, useUserProfileStore } from '@/features/user-profile/UserProfileStore'
 import _, { sumBy } from "lodash";

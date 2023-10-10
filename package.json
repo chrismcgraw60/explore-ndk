@@ -15,7 +15,6 @@
     "@heroicons/react": "^2.0.18",
     "@monaco-editor/react": "^4.5.2",
     "@nostr-dev-kit/ndk": "file:./../ndk/ndk",
-    "@nostr-dev-kit/ndk-react": "file:./../ndk-react/packages/ndk-react",
     "@types/lodash": "^4.14.197",
     "@types/node": "20.4.10",
     "@types/react": "18.2.20",
