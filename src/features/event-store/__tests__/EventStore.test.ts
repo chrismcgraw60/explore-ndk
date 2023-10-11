@@ -2,7 +2,8 @@ import "websocket-polyfill";
 import * as td from "testdouble";
 
 import { createEventStore } from "@/features/event-store/EventStore";
-import NDK, { NDKEvent, NDKFilter, NostrEvent } from "@nostr-dev-kit/ndk";
+import NDK, { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
+import { DEFAULT_EVENT_FILTER } from "../defaults";
 
 /** Build an event for testing purposes. */
 export function buildNostrEvent(params: Partial<NostrEvent>): NostrEvent {
@@ -26,11 +27,6 @@ function buildNdkEvent(ndk: NDK, params: Partial<NostrEvent>): NDKEvent {
 const TEST_TIMEOUT = 10000;
 
 describe("NDK sync", () => {
-  const defaultFilter: NDKFilter = {
-    kinds: [1],
-    "#t": ["ndk"],
-  };
-
   test(
     "fetchEvents",
     async () => {
@@ -50,11 +46,11 @@ describe("NDK sync", () => {
         tags: [["p", "my_key"]],
       });
 
-      td.when(ndkMock.fetchEvents(defaultFilter)).thenResolve(new Set<NDKEvent>([event1, event2]));
+      td.when(ndkMock.fetchEvents(DEFAULT_EVENT_FILTER)).thenResolve(new Set<NDKEvent>([event1, event2]));
 
       const bs = createEventStore();
 
-      await bs.getState().fetchEventsS(ndkMock, defaultFilter);
+      await bs.getState().fetchEventsS(ndkMock, DEFAULT_EVENT_FILTER);
 
       expect(bs.getState().events.length).toEqual(2);
     },

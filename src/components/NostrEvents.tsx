@@ -6,6 +6,7 @@ import { NDKFilter } from "@nostr-dev-kit/ndk";
 import _ from "lodash";
 import dynamic from "next/dynamic";
 import { useEventStoreContext } from "@/features/event-store";
+import { DEFAULT_EVENT_FILTER } from "@/features/event-store/defaults";
 
 const JsonViewerDyn = dynamic(() => import("@/components/JsonViewer"), {
   ssr: false,
@@ -16,11 +17,6 @@ interface NostrEventProps {
   currentEventId?: string;
 }
 
-const defaultFilter: NDKFilter = {
-  kinds: [1],
-  "#t": ["ndk"],
-};
-
 const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
   const fetchEvents = useEventStoreContext((s) => s.fetchEventsS);
   const ndkEvents = useEventStoreContext((s) => s.events);
@@ -29,7 +25,7 @@ const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
   const [isInitLoaded, setInitLoaded] = useState<boolean>(false);
   const { ndk } = useNDK();
 
-  const filterToApply: NDKFilter = filter ? filter : defaultFilter;
+  const filterToApply: NDKFilter = filter ? filter : DEFAULT_EVENT_FILTER;
 
   useEffect(() => {
     async function load() {
@@ -58,9 +54,7 @@ const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
 
   return (
     <>
-      <div className="overflow-y-auto overflow-x-hidden">
-        {isLoading ? "Loading..." : eventDivs}
-      </div>
+      <div className="overflow-y-auto overflow-x-hidden">{isLoading ? "Loading..." : eventDivs}</div>
     </>
   );
 };
