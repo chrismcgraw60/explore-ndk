@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { PropsWithChildren, createContext, useContext } from "react";
 import NDK from "@nostr-dev-kit/ndk";
@@ -6,11 +6,11 @@ import NDKInstance from "@/hooks/useNDK/instance";
 
 export const relayUrls = ["wss://relay.damus.io", "wss://relay.snort.social"];
 
-interface NDKContext {
+interface NDKContextProps {
   ndk: NDK | undefined;
 }
 
-const NDKContext = createContext<NDKContext>({
+const NDKContext = createContext<NDKContextProps>({
   ndk: undefined,
 });
 
