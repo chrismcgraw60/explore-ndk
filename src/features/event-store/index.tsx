@@ -1,31 +1,22 @@
 "use client";
-import React, {
-  PropsWithChildren,
-  createContext,
-  useContext,
-  useRef,
-} from "react";
-import {
-  EventState,
-  EventStore,
-  createEventStore,
-} from "@/features/event-store/EventStore";
+import React, { PropsWithChildren, createContext, useContext, useRef } from "react";
+import { EventState, EventStore, createEventStore } from "@/features/event-store/EventStore";
 import { useStore } from "zustand";
+import { useNDK } from "@/hooks/useNDK";
 
-const EventStoreContext = createContext<EventStore | null>(null);
+const EventStoreContext = createContext<EventStore | undefined>(undefined);
 
 function EventStoreProvider({ children }: PropsWithChildren) {
-  // <-- use NDK here
+  const { ndk } = useNDK();
   const storeRef = useRef<EventStore>();
-  if (!storeRef.current) {
-    storeRef.current = createEventStore();
+
+  if (ndk && !storeRef.current) {
+    storeRef.current = createEventStore(ndk);
   }
 
-  return (
-    <EventStoreContext.Provider value={storeRef.current}>
-      {children}
-    </EventStoreContext.Provider>
-  );
+  return storeRef.current ? (
+    <EventStoreContext.Provider value={storeRef.current}>{children}</EventStoreContext.Provider>
+  ) : null;
 }
 
 function useEventStoreContext<T>(selector: (state: EventState) => T): T {

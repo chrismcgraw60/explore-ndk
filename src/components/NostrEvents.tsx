@@ -25,28 +25,26 @@ const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
   const [isInitLoaded, setInitLoaded] = useState<boolean>(false);
   const { ndk } = useNDK();
 
-  const filterToApply: NDKFilter = filter ? filter : DEFAULT_EVENT_FILTER;
-
   useEffect(() => {
     async function load() {
-      if (ndk && !isInitLoaded) {
+      if (ndk && !isInitLoaded && filter) {
         try {
           setLoading(true);
-          await fetchEvents(ndk, filterToApply);
           setInitLoaded(true);
+          await fetchEvents(ndk, filter);
         } finally {
           setLoading(false);
         }
       }
     }
     load();
-  }, [fetchEvents, filterToApply, isInitLoaded, ndk]);
+  }, [fetchEvents, filter, isInitLoaded, ndk]);
 
   const eventDivs: JSX.Element[] = [];
-  _.forEach(ndkEvents, (ev) => {
+  _.forEach(ndkEvents, (ev, i) => {
     const isSelected = ev.id === currentEventId;
     eventDivs.push(
-      <div className="p-1" id={ev.id} key={ev.id}>
+      <div className="p-1" id={ev.id} key={`${ev.id}.${i}`}>
         <JsonViewerDyn ndkEvent={ev.rawEvent()} isSelected={isSelected} />
       </div>
     );

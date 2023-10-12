@@ -48,7 +48,7 @@ describe("NDK sync", () => {
 
       td.when(ndkMock.fetchEvents(DEFAULT_EVENT_FILTER)).thenResolve(new Set<NDKEvent>([event1, event2]));
 
-      const bs = createEventStore();
+      const bs = createEventStore(ndkMock);
 
       await bs.getState().fetchEventsS(ndkMock, DEFAULT_EVENT_FILTER);
 

@@ -28,7 +28,7 @@ describe("Populating Events", () => {
   test(
     "using subscribe",
     async () => {
-      const bs = createEventStore();
+      const bs = createEventStore(ndk);
 
       bs.getState().subscribeEvents(ndk, DEFAULT_EVENT_FILTER);
 
@@ -45,7 +45,7 @@ describe("Populating Events", () => {
   test(
     "using fetchEvents",
     async () => {
-      const bs = createEventStore();
+      const bs = createEventStore(ndk);
 
       await bs.getState().fetchEventsS(ndk, DEFAULT_EVENT_FILTER);
 

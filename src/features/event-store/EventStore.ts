@@ -18,13 +18,13 @@ export interface EventState extends EventStoreProps {
   fetchEventsS: (ndk: NDK, filter: NDKFilter) => Promise<void>;
 }
 
-export const createEventStore = (initProps?: Partial<EventStoreProps>) => {
+export const createEventStore = (ndk2: NDK, initProps?: Partial<EventStoreProps>) => {
   return createStore<EventState>()((set, get) => ({
     ...DEFAULT_EVENT_STORE_PROPS,
     ...initProps,
 
-    subscribeEvents: (ndk: NDK, filter: NDKFilter) => _subscribeEvents(get, set, ndk, filter),
-    fetchEventsS: (ndk: NDK, filter: NDKFilter) => _fetchEventAndStore(get, set, ndk, filter),
+    subscribeEvents: (ndk: NDK, filter: NDKFilter) => _subscribeEvents(get, set, ndk2, filter),
+    fetchEventsS: (ndk: NDK, filter: NDKFilter) => _fetchEventAndStore(get, set, ndk2, filter),
   }));
 };
 

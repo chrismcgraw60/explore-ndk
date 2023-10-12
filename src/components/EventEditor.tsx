@@ -45,7 +45,7 @@ async function ensureSigner(ndk: NDK | undefined) {
 
 function EventEditor() {
 
-  const { npub, ndkUser } = useUserProfileStore((state) => state);
+  const { ndkUser } = useUserProfileStore((state) => state);
   const { ndk } = useNDK();
   const [ isPublishing, setPublishing] = useState<boolean>(false);
   const [ editorEvent, setEditorEvent] = useState<NostrEvent | undefined>(undefined);
