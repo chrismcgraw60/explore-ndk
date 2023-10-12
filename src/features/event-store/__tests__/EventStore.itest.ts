@@ -1,7 +1,8 @@
 import "websocket-polyfill";
 
 import { createEventStore } from "@/features/event-store/EventStore";
-import NDK, { NDKFilter } from "@nostr-dev-kit/ndk";
+import NDK from "@nostr-dev-kit/ndk";
+import { DEFAULT_EVENT_FILTER } from "../defaults";
 
 const TEST_TIMEOUT = 10000;
 const assertAfter = (delay: number, fn: () => boolean) => {
@@ -10,11 +11,6 @@ const assertAfter = (delay: number, fn: () => boolean) => {
 
 describe("Populating Events", () => {
   const relayUrls = ["wss://relay.damus.io", "wss://relay.snort.social"];
-
-  const defaultFilter: NDKFilter = {
-    kinds: [1],
-    "#t": ["ndk"],
-  };
 
   let ndk = new NDK({
     explicitRelayUrls: relayUrls,
@@ -34,7 +30,7 @@ describe("Populating Events", () => {
     async () => {
       const bs = createEventStore();
 
-      bs.getState().subscribeEvents(ndk, defaultFilter);
+      bs.getState().subscribeEvents(ndk, DEFAULT_EVENT_FILTER);
 
       const result = await assertAfter(2000, () => {
         console.log("Subscribed event count: " + bs.getState().events.length);
@@ -51,7 +47,7 @@ describe("Populating Events", () => {
     async () => {
       const bs = createEventStore();
 
-      await bs.getState().fetchEventsS(ndk, defaultFilter);
+      await bs.getState().fetchEventsS(ndk, DEFAULT_EVENT_FILTER);
 
       console.log("Returned event count:" + bs.getState().events.length);
 
