@@ -7,6 +7,7 @@ import _ from "lodash";
 import dynamic from "next/dynamic";
 import { useEventStoreContext } from "@/features/event-store";
 import { DEFAULT_EVENT_FILTER } from "@/features/event-store/defaults";
+import { DEFAULT_EVENT_FILTER } from "@/features/event-store/defaults";
 
 const JsonViewerDyn = dynamic(() => import("@/components/JsonViewer"), {
   ssr: false,
@@ -52,6 +53,7 @@ const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
 
   return (
     <>
+      <div className="overflow-y-auto overflow-x-hidden">{isLoading ? "Loading..." : eventDivs}</div>
       <div className="overflow-y-auto overflow-x-hidden">{isLoading ? "Loading..." : eventDivs}</div>
     </>
   );
