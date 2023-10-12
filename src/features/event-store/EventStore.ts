@@ -14,8 +14,8 @@ export interface EventStoreProps {
 }
 
 export interface EventState extends EventStoreProps {
-  subscribeEvents: (ndk: NDK, filter: NDKFilter) => NDKSubscription;
-  fetchEventsS: (ndk: NDK, filter: NDKFilter) => Promise<void>;
+  subscribeEvents: (filter: NDKFilter) => NDKSubscription;
+  fetchEventsS: (filter: NDKFilter) => Promise<void>;
 }
 
 export const createEventStore = (ndk2: NDK, initProps?: Partial<EventStoreProps>) => {
@@ -23,8 +23,8 @@ export const createEventStore = (ndk2: NDK, initProps?: Partial<EventStoreProps>
     ...DEFAULT_EVENT_STORE_PROPS,
     ...initProps,
 
-    subscribeEvents: (ndk: NDK, filter: NDKFilter) => _subscribeEvents(get, set, ndk2, filter),
-    fetchEventsS: (ndk: NDK, filter: NDKFilter) => _fetchEventAndStore(get, set, ndk2, filter),
+    subscribeEvents: (filter: NDKFilter) => _subscribeEvents(get, set, ndk2, filter),
+    fetchEventsS: (filter: NDKFilter) => _fetchEventAndStore(get, set, ndk2, filter),
   }));
 };
 

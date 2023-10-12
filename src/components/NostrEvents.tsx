@@ -30,7 +30,7 @@ const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
         try {
           setLoading(true);
           setInitLoaded(true);
-          await fetchEvents(ndk, filter);
+          await fetchEvents(filter);
         } finally {
           setLoading(false);
         }

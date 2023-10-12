@@ -30,7 +30,7 @@ describe("Populating Events", () => {
     async () => {
       const bs = createEventStore(ndk);
 
-      bs.getState().subscribeEvents(ndk, DEFAULT_EVENT_FILTER);
+      bs.getState().subscribeEvents(DEFAULT_EVENT_FILTER);
 
       const result = await assertAfter(2000, () => {
         console.log("Subscribed event count: " + bs.getState().events.length);
@@ -47,7 +47,7 @@ describe("Populating Events", () => {
     async () => {
       const bs = createEventStore(ndk);
 
-      await bs.getState().fetchEventsS(ndk, DEFAULT_EVENT_FILTER);
+      await bs.getState().fetchEventsS(DEFAULT_EVENT_FILTER);
 
       console.log("Returned event count:" + bs.getState().events.length);
 

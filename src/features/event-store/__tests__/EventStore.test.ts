@@ -50,7 +50,7 @@ describe("NDK sync", () => {
 
       const bs = createEventStore(ndkMock);
 
-      await bs.getState().fetchEventsS(ndkMock, DEFAULT_EVENT_FILTER);
+      await bs.getState().fetchEventsS(DEFAULT_EVENT_FILTER);
 
       expect(bs.getState().events.length).toEqual(2);
     },
