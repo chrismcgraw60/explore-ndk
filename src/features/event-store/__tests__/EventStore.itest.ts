@@ -33,8 +33,8 @@ describe("Populating Events", () => {
       bs.getState().subscribeEvents(DEFAULT_EVENT_FILTER);
 
       const result = await assertAfter(2000, () => {
-        console.log("Subscribed event count: " + bs.getState().events.length);
-        return bs.getState().events.length > 0;
+        console.log("Subscribed event count: " + bs.getState().eventSets.length);
+        return bs.getState().eventSets.length > 0;
       });
 
       expect(result).toBeTruthy();
@@ -49,9 +49,9 @@ describe("Populating Events", () => {
 
       await bs.getState().fetchEventsS(DEFAULT_EVENT_FILTER);
 
-      console.log("Returned event count:" + bs.getState().events.length);
+      console.log("Returned event count:" + bs.getState().eventSets.length);
 
-      expect(bs.getState().events.length).toBeGreaterThan(0);
+      expect(bs.getState().eventSets.length).toBeGreaterThan(0);
     },
     TEST_TIMEOUT
   );

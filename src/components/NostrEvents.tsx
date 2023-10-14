@@ -2,10 +2,10 @@
 
 import { useState, useEffect, JSX } from "react";
 import { useNDK } from "@/hooks/useNDK";
-import { NDKFilter } from "@nostr-dev-kit/ndk";
-import _ from "lodash";
+import * as R from "ramda";
 import dynamic from "next/dynamic";
 import { useEventStoreContext } from "@/features/event-store";
+import { NDKFilter } from "@nostr-dev-kit/ndk";
 
 const JsonViewerDyn = dynamic(() => import("@/components/JsonViewer"), {
   ssr: false,
@@ -18,7 +18,7 @@ interface NostrEventProps {
 
 const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
   const fetchEvents = useEventStoreContext((s) => s.fetchEventsS);
-  const ndkEvents = useEventStoreContext((s) => s.events);
+  const eventSets = useEventStoreContext((s) => s.eventSets);
 
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isInitLoaded, setInitLoaded] = useState<boolean>(false);
@@ -40,14 +40,19 @@ const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
   }, [fetchEvents, filter, isInitLoaded, ndk]);
 
   const eventDivs: JSX.Element[] = [];
-  _.forEach(ndkEvents, (ev, i) => {
-    const isSelected = ev.id === currentEventId;
-    eventDivs.push(
-      <div className="p-1" id={ev.id} key={`${ev.id}.${i}`}>
-        <JsonViewerDyn ndkEvent={ev.rawEvent()} isSelected={isSelected} />
-      </div>
-    );
-  });
+
+  if (!R.isEmpty(eventSets)) {
+    const events = eventSets[0].events;
+
+    events.forEach((ev, i) => {
+      const isSelected = ev.id === currentEventId;
+      eventDivs.push(
+        <div className="p-1" id={ev.id} key={`${ev.id}.${i}`}>
+          <JsonViewerDyn ndkEvent={ev.rawEvent()} isSelected={isSelected} />
+        </div>
+      );
+    });
+  }
 
   return (
     <>
