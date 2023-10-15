@@ -18,22 +18,18 @@ interface NostrEventProps {
 
 const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
   const fetchEvents = useEventStoreContext((s) => s.fetchEventsS);
+  const isFilterLoading = useEventStoreContext((s) => s.isLoading);
   const eventSets = useEventStoreContext((s) => s.eventSets);
 
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const isLoading = filter && isFilterLoading(filter);
   const [isInitLoaded, setInitLoaded] = useState<boolean>(false);
   const { ndk } = useNDK();
 
   useEffect(() => {
     async function load() {
       if (ndk && !isInitLoaded && filter) {
-        try {
-          setLoading(true);
-          setInitLoaded(true);
-          await fetchEvents(filter);
-        } finally {
-          setLoading(false);
-        }
+        setInitLoaded(true);
+        await fetchEvents(filter);
       }
     }
     load();

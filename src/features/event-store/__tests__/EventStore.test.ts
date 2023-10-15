@@ -19,7 +19,11 @@ describe("EventStore", () => {
 
       const bs = createEventStore(ndkMock);
 
+      expect(bs.getState().isLoading(DEFAULT_EVENT_FILTER)).toBe(false);
+
       await bs.getState().fetchEventsS(DEFAULT_EVENT_FILTER);
+
+      expect(bs.getState().isLoading(DEFAULT_EVENT_FILTER)).toBe(false);
 
       expect(bs.getState().eventSets.length).toEqual(1);
       const loadedEventSet = bs.getState().eventSets[0];

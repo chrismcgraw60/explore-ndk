@@ -1,9 +1,12 @@
 import NDK from "@nostr-dev-kit/ndk";
-import { eventSet, eventsLoaded, sortCreatedByAsc } from "../EventSet";
+import { beginLoading, eventSet, eventsLoaded, sortCreatedByAsc } from "../EventSet";
 import * as td from "testdouble";
 import { emptyFilter, eventsToIds, sampleEvents } from "./testData";
 
-describe("EventSet Initialisation", () => {
+describe("EventSet", () => {
+  const ndkMock = td.object<NDK>();
+  const [ev1, ev2, ev3, ev4] = sampleEvents(ndkMock);
+
   test("should initialise with name", () => {
     const es = eventSet("foo", emptyFilter());
 
@@ -11,11 +14,11 @@ describe("EventSet Initialisation", () => {
     expect(es.isLoading).toBe(false);
     expect(es.nip01Filter).toEqual(emptyFilter());
   });
-});
 
-describe("EventSet eventsLoaded", () => {
-  const ndkMock = td.object<NDK>();
-  const [ev1, ev2, ev3, ev4] = sampleEvents(ndkMock);
+  test("should indicate isLoading ", () => {
+    const es = eventSet("foo", emptyFilter());
+    expect(beginLoading(es).isLoading).toBe(true);
+  });
 
   test("should add the submitted events to an empty set", () => {
     const es = eventSet("foo", emptyFilter());
