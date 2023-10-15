@@ -4,7 +4,7 @@ import * as td from "testdouble";
 import { createEventStore } from "@/features/event-store/EventStore";
 import NDK, { NDKEvent } from "@nostr-dev-kit/ndk";
 import { DEFAULT_EVENT_FILTER } from "../defaults";
-import { eventsToIds, sampleEvents } from "./testData";
+import { eventsToIds, sampleEvents } from "./sampleData";
 
 const TEST_TIMEOUT = 10000;
 

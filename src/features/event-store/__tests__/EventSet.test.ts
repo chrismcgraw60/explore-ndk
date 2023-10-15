@@ -1,7 +1,7 @@
 import NDK from "@nostr-dev-kit/ndk";
 import { beginLoading, eventSet, eventsLoaded, sortCreatedByAsc } from "../EventSet";
 import * as td from "testdouble";
-import { emptyFilter, eventsToIds, sampleEvents } from "./testData";
+import { emptyFilter, eventsToIds, sampleEvents } from "./sampleData";
 
 describe("EventSet", () => {
   const ndkMock = td.object<NDK>();

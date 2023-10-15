@@ -12,7 +12,6 @@ type GetFn = () => EventState;
 export type EventStore = ReturnType<typeof createEventStore>;
 
 export interface EventStoreProps {
-  currentFilter: NDKFilter;
   eventSets: EventSet[];
 }
 export interface EventState extends EventStoreProps {

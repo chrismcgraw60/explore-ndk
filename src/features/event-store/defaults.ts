@@ -7,6 +7,5 @@ export const DEFAULT_EVENT_FILTER: NDKFilter = {
 };
 
 export const DEFAULT_EVENT_STORE_PROPS: EventStoreProps = {
-  currentFilter: DEFAULT_EVENT_FILTER,
   eventSets: [],
 };
