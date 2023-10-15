@@ -59,6 +59,7 @@ export function eventsLoaded(eventSet: EventSet, loadedEvents: NDKEvent[]): Even
 
 function mergeEventLists(existingEvents: NDKEvent[], loadedEvents: NDKEvent[], evSort: EventSort): NDKEvent[] {
   const concat = R.concat(existingEvents, loadedEvents);
-  const sorted = R.sort(evSort, concat);
+  const unique = R.uniqBy((ev) => ev.id , concat);
+  const sorted = R.sort(evSort, unique);
   return sorted;
 }
