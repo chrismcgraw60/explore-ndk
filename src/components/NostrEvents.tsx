@@ -17,7 +17,7 @@ interface NostrEventProps {
 }
 
 const NostrEvents = ({ filter, currentEventId }: NostrEventProps) => {
-  const fetchEvents = useEventStoreContext((s) => s.fetchEventsS);
+  const fetchEvents = useEventStoreContext((s) => s.fetchEvents);
   const isFilterLoading = useEventStoreContext((s) => s.isLoading);
   const eventSets = useEventStoreContext((s) => s.eventSets);
 

@@ -21,7 +21,7 @@ describe("EventStore", () => {
 
       expect(bs.getState().isLoading(DEFAULT_EVENT_FILTER)).toBe(false);
 
-      await bs.getState().fetchEventsS(DEFAULT_EVENT_FILTER);
+      await bs.getState().fetchEvents(DEFAULT_EVENT_FILTER);
 
       expect(bs.getState().isLoading(DEFAULT_EVENT_FILTER)).toBe(false);
 
@@ -42,13 +42,13 @@ describe("EventStore", () => {
 
       const bs = createEventStore(ndkMock);
 
-      await bs.getState().fetchEventsS(DEFAULT_EVENT_FILTER);
+      await bs.getState().fetchEvents(DEFAULT_EVENT_FILTER);
 
       expect(bs.getState().eventSets.length).toEqual(1);
       const loadedEventSet1 = bs.getState().eventSets[0];
       expect(loadedEventSet1.events.length).toEqual(2);
 
-      await bs.getState().fetchEventsS(DEFAULT_EVENT_FILTER);
+      await bs.getState().fetchEvents(DEFAULT_EVENT_FILTER);
       expect(bs.getState().eventSets.length).toEqual(1);
       const loadedEventSet2 = bs.getState().eventSets[0];
       expect(loadedEventSet2.events.length).toEqual(4);

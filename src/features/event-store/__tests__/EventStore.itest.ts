@@ -47,7 +47,7 @@ describe("Populating Events", () => {
     async () => {
       const bs = createEventStore(ndk);
 
-      await bs.getState().fetchEventsS(DEFAULT_EVENT_FILTER);
+      await bs.getState().fetchEvents(DEFAULT_EVENT_FILTER);
 
       console.log("Returned event count:" + bs.getState().eventSets.length);
 

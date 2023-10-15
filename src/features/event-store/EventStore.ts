@@ -17,7 +17,7 @@ export interface EventStoreProps {
 }
 export interface EventState extends EventStoreProps {
   subscribeEvents: (filter: NDKFilter) => NDKSubscription;
-  fetchEventsS: (filter: NDKFilter) => Promise<void>;
+  fetchEvents: (filter: NDKFilter) => Promise<void>;
   isLoading: (filter: NDKFilter) => boolean;
 }
 
@@ -27,7 +27,7 @@ export const createEventStore = (ndk2: NDK, initProps?: Partial<EventStoreProps>
     ...initProps,
 
     subscribeEvents: (filter: NDKFilter) => _subscribeEvents(get, set, ndk2, filter),
-    fetchEventsS: (filter: NDKFilter) => _fetchEventAndStore(get, set, ndk2, filter),
+    fetchEvents: (filter: NDKFilter) => _fetchAndStoreEvents(get, set, ndk2, filter),
     isLoading: (filter: NDKFilter) => _isLoading(get, filter),
   }));
 };
@@ -42,7 +42,7 @@ const _subscribeEvents = (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter): 
   return sub;
 };
 
-const _fetchEventAndStore = async (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter): Promise<void> => {
+const _fetchAndStoreEvents = async (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter): Promise<void> => {
   const matchingSet = findExistingEventSetOrCreateNew(get, filter);
   const updatedSet = produce(matchingSet, (draft) => {
     draft.isLoading = true;
