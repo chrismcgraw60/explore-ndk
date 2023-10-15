@@ -47,13 +47,14 @@ describe("EventStore", () => {
       expect(bs.getState().eventSets.length).toEqual(1);
       const loadedEventSet1 = bs.getState().eventSets[0];
       expect(loadedEventSet1.events.length).toEqual(2);
+      expect(bs.getState().eventSet(DEFAULT_EVENT_FILTER)).toEqual(loadedEventSet1);
 
       await bs.getState().fetchEvents(DEFAULT_EVENT_FILTER);
       expect(bs.getState().eventSets.length).toEqual(1);
       const loadedEventSet2 = bs.getState().eventSets[0];
       expect(loadedEventSet2.events.length).toEqual(4);
-
       expect(eventsToIds(loadedEventSet2)).toEqual([ev4.id, ev3.id, ev2.id, ev1.id]);
+      expect(bs.getState().eventSet(DEFAULT_EVENT_FILTER)).toEqual(loadedEventSet2);
     },
     TEST_TIMEOUT
   );

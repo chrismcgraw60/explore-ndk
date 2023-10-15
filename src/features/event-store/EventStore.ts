@@ -16,9 +16,10 @@ export interface EventStoreProps {
   eventSets: EventSet[];
 }
 export interface EventState extends EventStoreProps {
-  subscribeEvents: (filter: NDKFilter) => NDKSubscription;
+  eventSet: (filter: NDKFilter) => EventSet;
   fetchEvents: (filter: NDKFilter) => Promise<void>;
   isLoading: (filter: NDKFilter) => boolean;
+  subscribeEvents: (filter: NDKFilter) => NDKSubscription;
 }
 
 export const createEventStore = (ndk2: NDK, initProps?: Partial<EventStoreProps>) => {
@@ -26,9 +27,10 @@ export const createEventStore = (ndk2: NDK, initProps?: Partial<EventStoreProps>
     ...DEFAULT_EVENT_STORE_PROPS,
     ...initProps,
 
-    subscribeEvents: (filter: NDKFilter) => _subscribeEvents(get, set, ndk2, filter),
+    eventSet: (filter: NDKFilter) => _findExistingEventSetOrCreateNew(get, filter),
     fetchEvents: (filter: NDKFilter) => _fetchAndStoreEvents(get, set, ndk2, filter),
     isLoading: (filter: NDKFilter) => _isLoading(get, filter),
+    subscribeEvents: (filter: NDKFilter) => _subscribeEvents(get, set, ndk2, filter),
   }));
 };
 
@@ -43,7 +45,7 @@ const _subscribeEvents = (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter): 
 };
 
 const _fetchAndStoreEvents = async (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter): Promise<void> => {
-  const matchingSet = findExistingEventSetOrCreateNew(get, filter);
+  const matchingSet = _findExistingEventSetOrCreateNew(get, filter);
   const updatedSet = produce(matchingSet, (draft) => {
     draft.isLoading = true;
   });
@@ -58,17 +60,17 @@ const _fetchAndStoreEvents = async (get: GetFn, set: SetFn, ndk: NDK, filter: ND
 };
 
 function _isLoading(get: GetFn, filter: NDKFilter): boolean {
-  const eventSet = findExistingEventSetOrCreateNew(get, filter);
+  const eventSet = _findExistingEventSetOrCreateNew(get, filter);
   return eventSet.isLoading;
 }
 
-function findExistingEventSetOrCreateNew(get: GetFn, filter: NDKFilter) {
+function _findExistingEventSetOrCreateNew(get: GetFn, filter: NDKFilter) {
   const filterMatch = (evSet: EventSet) => R.equals(evSet.nip01Filter, filter);
   return R.find(filterMatch, get().eventSets) || eventSet("Default", filter);
 }
 
 function updateEventSet(get: GetFn, set: SetFn, filter: NDKFilter, loadedEvents: Set<NDKEvent>) {
-  const matchingSet = findExistingEventSetOrCreateNew(get, filter);
+  const matchingSet = _findExistingEventSetOrCreateNew(get, filter);
   const updatedSet = eventsLoaded(matchingSet, Array.from(loadedEvents));
 
   set({
