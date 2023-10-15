@@ -7,7 +7,7 @@ import * as R from "ramda";
 import { produce } from "immer";
 
 type SetFn = ZuSetFn<EventState>;
-type GetFn = () => EventState;S
+type GetFn = () => EventState;
 
 export type EventStore = ReturnType<typeof createEventStore>;
 
