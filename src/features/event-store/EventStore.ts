@@ -1,70 +1,78 @@
-import NDK, { NDKEvent, NDKFilter, NDKSubscription } from '@nostr-dev-kit/ndk'
-import { createStore } from 'zustand'
-
-export type ZuSetFn<T> = (
-    partial: T | Partial<T> | ((state: T) => T | Partial<T>), 
-    replace?: boolean | undefined) => void;
+import { ZuSetFn } from "@/stores/utils";
+import NDK, { NDKEvent, NDKFilter, NDKSubscription } from "@nostr-dev-kit/ndk";
+import { createStore } from "zustand";
+import { DEFAULT_EVENT_STORE_PROPS } from "./defaults";
+import { EventSet, eventSet, eventsLoaded } from "./EventSet";
+import * as R from "ramda";
+import { produce } from "immer";
 
 type SetFn = ZuSetFn<EventState>;
 type GetFn = () => EventState;
 
-interface EventStoreProps {
-    eventCount: number;
-    events: NDKEvent[];
-}
+export type EventStore = ReturnType<typeof createEventStore>;
 
-const DEFAULT_PROPS: EventStoreProps = {
-    eventCount: 0,
-    events: []
+export interface EventStoreProps {
+  eventSets: EventSet[];
 }
-
 export interface EventState extends EventStoreProps {
-  inc: () => void;
-  fetchEvents: (ndk: NDK, filter: NDKFilter) => NDKSubscription ;
-  fetchEventsS: (ndk: NDK, filter: NDKFilter) => Promise<void> ;
+  eventSet: (filter: NDKFilter) => EventSet;
+  fetchEvents: (filter: NDKFilter) => Promise<void>;
+  isLoading: (filter: NDKFilter) => boolean;
+  subscribeEvents: (filter: NDKFilter) => NDKSubscription;
 }
 
-export type EventStore = ReturnType<typeof createEventStore>
+export const createEventStore = (ndk2: NDK, initProps?: Partial<EventStoreProps>) => {
+  return createStore<EventState>()((set, get) => ({
+    ...DEFAULT_EVENT_STORE_PROPS,
+    ...initProps,
 
-export const createEventStore = (initProps?: Partial<EventStoreProps>) => {
+    eventSet: (filter: NDKFilter) => _findExistingEventSetOrCreateNew(get, filter),
+    fetchEvents: (filter: NDKFilter) => _fetchAndStoreEvents(get, set, ndk2, filter),
+    isLoading: (filter: NDKFilter) => _isLoading(get, filter),
+    subscribeEvents: (filter: NDKFilter) => _subscribeEvents(get, set, ndk2, filter),
+  }));
+};
 
-    return createStore<EventState>()((set, get) => ({
-        ...DEFAULT_PROPS,
-        ...initProps,
+const _subscribeEvents = (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter): NDKSubscription => {
+  const sub = ndk.subscribe(filter, {});
 
-        inc: () => set(_inc),
-        fetchEvents: (ndk: NDK, filter: NDKFilter) => _fetchEvents(get, set, ndk, filter),
-        fetchEventsS: (ndk: NDK, filter: NDKFilter) => _fetchEventsS(get, set, ndk, filter)
-    }))
+  sub.on("event", (ndkEv: NDKEvent) => {
+    updateEventSet(get, set, filter, new Set([ndkEv]));
+  });
+
+  return sub;
+};
+
+const _fetchAndStoreEvents = async (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter): Promise<void> => {
+  const matchingSet = _findExistingEventSetOrCreateNew(get, filter);
+  const updatedSet = produce(matchingSet, (draft) => {
+    draft.isLoading = true;
+  });
+
+  set({
+    eventSets: R.without([matchingSet], get().eventSets).concat(updatedSet),
+  });
+
+  const loadedEvents = await ndk.fetchEvents(filter);
+
+  updateEventSet(get, set, filter, loadedEvents);
+};
+
+function _isLoading(get: GetFn, filter: NDKFilter): boolean {
+  const eventSet = _findExistingEventSetOrCreateNew(get, filter);
+  return eventSet.isLoading;
 }
 
-const _inc = (state: EventState) : Partial<EventState> =>  ({ eventCount: ++state.eventCount });
-
-const _fetchEvents = (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter) : NDKSubscription =>  {
-
-    const sub = ndk.subscribe(filter, {});
-
-    sub.on("event", (ndkEv: NDKEvent) => {
-        
-        ndkEv.ndk = ndk;
-
-        const currentEvents = get().events;
-
-        set({
-            events: [...currentEvents, ndkEv]
-        })
-    });
-
-    
-    return sub;
+function _findExistingEventSetOrCreateNew(get: GetFn, filter: NDKFilter) {
+  const filterMatch = (evSet: EventSet) => R.equals(evSet.nip01Filter, filter);
+  return R.find(filterMatch, get().eventSets) || eventSet("Default", filter);
 }
 
-const _fetchEventsS = async (get: GetFn, set: SetFn, ndk: NDK, filter: NDKFilter) : Promise<void> =>  {
+function updateEventSet(get: GetFn, set: SetFn, filter: NDKFilter, loadedEvents: Set<NDKEvent>) {
+  const matchingSet = _findExistingEventSetOrCreateNew(get, filter);
+  const updatedSet = eventsLoaded(matchingSet, Array.from(loadedEvents));
 
-    const fetchedEvents = await ndk.fetchEvents(filter);
-    const currentEvents = get().events;
-
-    set({
-        events: [...currentEvents, ...Array.from(fetchedEvents.values())]
-    })
+  set({
+    eventSets: R.without([matchingSet], get().eventSets).concat(updatedSet),
+  });
 }

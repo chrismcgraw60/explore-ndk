@@ -1,61 +1,61 @@
+import "websocket-polyfill";
+import * as td from "testdouble";
 
-import 'websocket-polyfill'
+import { createEventStore } from "@/features/event-store/EventStore";
+import NDK, { NDKEvent } from "@nostr-dev-kit/ndk";
+import { DEFAULT_EVENT_FILTER } from "../defaults";
+import { eventsToIds, sampleEvents } from "./sampleData";
 
-import { createEventStore, } from '@/features/event-store/EventStore';
-import NDK, { NDKFilter } from '@nostr-dev-kit/ndk';
+const TEST_TIMEOUT = 10000;
 
-const assertAfter = (delay: number, fn: ()=>boolean) => {
-     return new Promise(resolve => setTimeout(() => resolve(fn()), delay));
-}
+describe("EventStore", () => {
+  const ndkMock = td.object<NDK>();
+  const [ev1, ev2, ev3, ev4] = sampleEvents(ndkMock);
 
-describe ('NDK sync', () => {
+  test(
+    "fetchEvents into an empty store",
+    async () => {
+      td.when(ndkMock.fetchEvents(DEFAULT_EVENT_FILTER)).thenResolve(new Set<NDKEvent>([ev1, ev2]));
 
-     const relayUrls = [
-          "wss://relay.damus.io",
-          "wss://relay.snort.social",
-          ];
-     
-     const defaultFilter: NDKFilter = {
-          kinds: [1],
-          "#t": ["ndk"],
-          };
+      const bs = createEventStore(ndkMock);
 
-     let ndk = new NDK({
-          explicitRelayUrls: relayUrls
-     });
+      expect(bs.getState().isLoading(DEFAULT_EVENT_FILTER)).toBe(false);
 
-     beforeEach( async () => {
-          ndk = new NDK({
-               explicitRelayUrls: relayUrls
-          });
-          await ndk.connect();
-     });
+      await bs.getState().fetchEvents(DEFAULT_EVENT_FILTER);
 
-     afterEach(() => relayUrls.map(relay => ndk.pool.removeRelay(relay)));
+      expect(bs.getState().isLoading(DEFAULT_EVENT_FILTER)).toBe(false);
 
-     test('subscribe', async () => {  
-          
-          const bs = createEventStore();
+      expect(bs.getState().eventSets.length).toEqual(1);
+      const loadedEventSet = bs.getState().eventSets[0];
+      expect(loadedEventSet.events.length).toEqual(2);
+    },
+    TEST_TIMEOUT
+  );
 
-          bs.getState().fetchEvents(ndk, defaultFilter);
+  test(
+    "fetchEvents into an empty store and then fetch more",
+    async () => {
+      td.when(ndkMock.fetchEvents(DEFAULT_EVENT_FILTER)).thenResolve(
+        new Set<NDKEvent>([ev2, ev4]),
+        new Set<NDKEvent>([ev3, ev1])
+      );
 
-          const result = await assertAfter(2000, () => {
-               console.log("Subscribed event count: " + bs.getState().events.length);
-               return bs.getState().events.length > 0;
-          });
+      const bs = createEventStore(ndkMock);
 
-          expect(result).toBeTruthy();
-     
-     }, 10000);
+      await bs.getState().fetchEvents(DEFAULT_EVENT_FILTER);
 
-     test('fetchEvents', async () => {   
-     
-          const bs = createEventStore();
+      expect(bs.getState().eventSets.length).toEqual(1);
+      const loadedEventSet1 = bs.getState().eventSets[0];
+      expect(loadedEventSet1.events.length).toEqual(2);
+      expect(bs.getState().eventSet(DEFAULT_EVENT_FILTER)).toEqual(loadedEventSet1);
 
-          await bs.getState().fetchEventsS(ndk, defaultFilter);
-
-          console.log("Returned event count:" + bs.getState().events.length);
-     
-     }, 10000);
-     
+      await bs.getState().fetchEvents(DEFAULT_EVENT_FILTER);
+      expect(bs.getState().eventSets.length).toEqual(1);
+      const loadedEventSet2 = bs.getState().eventSets[0];
+      expect(loadedEventSet2.events.length).toEqual(4);
+      expect(eventsToIds(loadedEventSet2)).toEqual([ev4.id, ev3.id, ev2.id, ev1.id]);
+      expect(bs.getState().eventSet(DEFAULT_EVENT_FILTER)).toEqual(loadedEventSet2);
+    },
+    TEST_TIMEOUT
+  );
 });

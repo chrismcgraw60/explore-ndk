@@ -2,7 +2,7 @@
 "use client";
 import { Fragment, useState, useEffect } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import { useNDK } from "@nostr-dev-kit/ndk-react";
+import { useNDK } from "@/hooks/useNDK";
 import NDK from '@nostr-dev-kit/ndk';
 import { useUserProfileStore } from "@/features/user-profile/UserProfileStore";
 
